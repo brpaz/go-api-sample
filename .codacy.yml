@@ -1,0 +1,12 @@
+engines:
+ golint:
+ govet:
+ duplication:
+ metric:
+ coverage:
+   exclude_paths:
+     - config/engines.yml
+languages:
+exclude_paths:
+  - 'vendor/**'
+  - '**/testdata/**'
