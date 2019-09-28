@@ -37,7 +37,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/server cmd/server/main.go
 
 #In this last stage, we start from a fresh Alpine image, to reduce the image size and not ship the Go compiler in our production artifacts.
-FROM alpine AS final
+FROM alpine:3.10 AS final
 
 # We add the certificates to be able to verify remote weaviate instances
 RUN apk add ca-certificates
