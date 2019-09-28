@@ -8,7 +8,7 @@ on:
 
 jobs:
   lint:
-    name: Lint
+    name: Lint Code
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
@@ -25,26 +25,18 @@ jobs:
           go get -u github.com/mgechev/revive
           make lint
 
-  build:
-    name: Build
+  lint-dockerfile:
     runs-on: ubuntu-latest
-    needs: [lint]
+    container: pipelinecomponents/hadolint:latest
     steps:
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.12
-
-      - name: Check out code
-        uses: actions/checkout@v1
-
-      - name: Build
-        run: make build
+      - uses: actions/checkout@v1
+      - name: Lint Dockerfile
+        run: hadolint Dockerfile
 
   test:
     name: Test
     runs-on: ubuntu-latest
-    needs: [lint, build]
+    needs: [lint]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v1
@@ -61,6 +53,85 @@ jobs:
         run: |
             export PATH=$PATH:$(go env GOPATH)/bin
             go get github.com/schrej/godacov
-            godacov -t $CODACY_TOKEN -r ./cover.out -c $GITHUB_SHA
+            godacov -t $CODACY_TOKEN -r cover.out -c $GITHUB_SHA
         env:
           CODACY_TOKEN: ${{secrets.CODACY_TOKEN}}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Build Docker image
+        run: docker build -t app:$GITHUB_SHA .
+
+      - name: Save image
+        run:  docker save -o image.tar go-api-sample:$GITHUB_SHA
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: image
+          path: image.tar
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Pull Image artifact
+        uses: actions/download-artifact@master
+        with:
+          name: image
+      - name: Load image into docker
+        run: docker load -i image/image.tar
+
+      - name: Run application
+        run: |
+          docker run -d -e APP_ENV=prod -e APP_PORT=5000 -p 5000:5000 go-api-sample:$GITHUB_SHA
+          sleep 10
+          curl -sSf http://localhost:5000 > /dev/null
+
+  push-to-gcr:
+    name: Push Docker image to Google Cloud Registry
+    runs-on: ubuntu-latest
+    needs: [integration-tests]
+    steps:
+      - name: Pull Image artifact
+        uses: actions/download-artifact@master
+        with:
+          name: image
+      - name: Load image into docker
+        run: docker load -i image/image.tar
+
+      - name: Tag docker images
+        run: |
+          docker tag go-api-sample:$GITHUB_SHA gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:$(echo $GITHUB_SHA | cut -c1-8)
+          docker login -u _json_key -p "$GCLOUD_SERVICE_KEY" https://gcr.io
+          docker push gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:latest
+        env:
+          GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+
+  deploy:
+    runs: ubuntu-latest
+    needs: ['integration-tests']
+    container: google/cloud-sdk:alpine
+    steps:
+      - name: Authenticate on Google Cloud
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
+          gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
+        env:
+          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+      - name: Deploy function
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample --platform managed
+        env:
+          GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+      - name: After Deploy
+        run: rm -f ${HOME}/gcloud-service-key.json
