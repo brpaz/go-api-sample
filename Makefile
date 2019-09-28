@@ -1,6 +1,3 @@
-PACKAGE=github.com//go-api-sample
-APP_NAME=go-api-sample
-GO_FILES= $(go list ./... | grep -v vendor)
 
 .PHONY: help env dep fmt lint vet build build-docker test cover version
 .DEFAULT: help
@@ -25,11 +22,11 @@ vet: ## Run go vet
 build: ## Build the app
 	@go build -o build/server cmd/server/main.go
 
-test: ## Run package unit testsS
-	@go test -v -race -short $(GO_FILES)
+test: ## Run package unit tests
+	@go test -v -race -short ./...
 
 test-coverage: ## Run tests with coverage
-	@go test -short -coverprofile cover.out -covermode=atomic ${PKG_LIST}
+	@go test -v -race -short -coverprofile cover.out -covermode=atomic  ./...
 	@cat cover.out >> coverage.txt
 
 up: ## Starts the application

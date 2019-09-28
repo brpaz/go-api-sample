@@ -11,6 +11,7 @@
 build
 cover
 cover.html
+coverage.txt
 dist
 
 # Local environment files

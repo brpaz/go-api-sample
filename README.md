@@ -1,11 +1,22 @@
 # go-api-sample
 
-> my awesome api
+> Sample Golang API.
 
 [![Go Report](https://goreportcard.com/badge/github.combrpaz/undefined?style=for-the-badge)](https://goreportcard.com/badge/github.com/brpaz/undefined)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
 [![GitHub Actions](https://github.com/brpaz/undefined/workflows/CI/badge.svg?style=for-the-badge)](https://github.com/brpaz/undefined/actions)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/8c79d720eb364a2cb0ef2f3d98a1874d)](https://www.codacy.com/manual/brpaz/go-api-sample?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=brpaz/go-api-sample&amp;utm_campaign=Badge_Grade)
+
+
+## What is Included
+
+* API based on [Echo framework](https://echo.labstack.com/)
+* Logging with [Zap](https://github.com/uber-go/zap)
+* Hot Reload with [Refresh](https://github.com/markbates/refresh)
+* DotEnv support
+* Docker and Docker-compose
+* CI with GitHub Actions
+* Deploy with Google Cloud run
 
 ## Pre-requisites
 
