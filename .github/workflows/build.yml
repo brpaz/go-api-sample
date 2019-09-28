@@ -66,7 +66,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Build Docker image
-        run: docker build -t app:$GITHUB_SHA .
+        run: docker build -t go-api-sample:$GITHUB_SHA .
 
       - name: Save image
         run:  docker save -o image.tar go-api-sample:$GITHUB_SHA
