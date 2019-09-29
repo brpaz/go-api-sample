@@ -7,7 +7,7 @@ on:
 
 env:
   IMAGE_NAME: go-api-sample:${{github.sha}}
-  FINAL_IMAGE_NAME: gcr.io/$GCLOUD_PROJECT_ID/go-api-sample
+  FINAL_IMAGE_NAME: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/go-api-sample
 
 jobs:
   lint:
