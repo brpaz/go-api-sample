@@ -6,6 +6,7 @@ on:
   pull_request:
 
 env:
+  APP_NAME: go-api-sample
   TEST_IMAGE_NAME: go-api-sample:${{github.sha}}
   RELEASE_IMAGE_NAME: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/go-api-sample
 
@@ -158,7 +159,7 @@ jobs:
         run: |
           gcloud config set run/platform managed
           gcloud config set run/region us-central1
-          gcloud beta run deploy --image $RELEASE_IMAGE_NAME:latest --update-env-vars APP_ENV=prod --allow-unauthenticated
+          gcloud beta run deploy $APP_NAME --image $RELEASE_IMAGE_NAME:latest --update-env-vars APP_ENV=prod --allow-unauthenticated
 
       - name: Cleanup
         run: rm -f ${HOME}/gcloud-service-key.json
