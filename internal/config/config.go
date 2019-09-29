@@ -7,7 +7,7 @@ const envPrefix = "app"
 // AppConfig struct that holds application configuration variables
 type AppConfig struct {
 	Env   string `default:"prod"`
-	Port  int    `default:"1323"`
+	Port  int    `default:"1323" envconfig:"PORT"`
 	Debug bool   `default:"false"`
 }
 

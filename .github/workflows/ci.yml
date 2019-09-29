@@ -118,18 +118,24 @@ jobs:
       - name: Load image into docker
         run: docker load -i image/image.tar
 
-      - name: Tag docker images
+      - name: Login in GCR
+        run:  docker login -u _json_key -p "$GCLOUD_SERVICE_KEY" https://gcr.io
+        env:
+          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+
+      - name: Tag and push images to Registry
         run: |
+          echo $IMAGE_NAME
           docker tag go-api-sample:$GITHUB_SHA gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:$(echo $GITHUB_SHA | cut -c1-8)
-          docker login -u _json_key -p "$GCLOUD_SERVICE_KEY" https://gcr.io
+          docker tag go-api-sample:$GITHUB_SHA gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:latest
           docker push gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:latest
         env:
           GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+          IMAGE_NAME: go-api-sample:$GITHUB_SHA
 
   deploy:
     runs-on: ubuntu-latest
-    needs: ['integration-tests']
+    needs: ['push-to-gcr']
     container: google/cloud-sdk:alpine
     steps:
       - name: Authenticate on Google Cloud
@@ -139,9 +145,13 @@ jobs:
           gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
         env:
           GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
-      - name: Deploy function
+      - name: Deploy to Cloud Run
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample --platform managed
+        run: |
+          gcloud components update
+          gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample \
+            --platform managed \
+            --set-env-vars APP_ENV=prod
         env:
           GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
       - name: After Deploy
