@@ -1,11 +1,12 @@
 name: CI
-env:
-  TEST: true
 on:
   push:
     branches:
       - master
   pull_request:
+
+env:
+  IMAGE_NAME: go-api-sample:${{github.sha}}
 
 jobs:
   lint:
@@ -22,7 +23,7 @@ jobs:
 
       - name: Lint Go Code
         run: |
-          echo $TEST
+          echo $IMAGE_NAME
           export PATH=$PATH:$(go env GOPATH)/bin
           go get -u github.com/mgechev/revive
           make lint
@@ -151,14 +152,19 @@ jobs:
           gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
         env:
           GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+
+      - name: Update Gcloud components
+        run: |
+          gcloud components install beta --quiet
+          gcloud components update --quiet
+
       - name: Deploy to Cloud Run
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: |
-          gcloud components update --quiet
-          gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample \
+        run: gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample \
             --platform managed \
             --set-env-vars APP_ENV=prod
         env:
           GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-      - name: After Deploy
+
+      - name: Cleanup
         run: rm -f ${HOME}/gcloud-service-key.json
