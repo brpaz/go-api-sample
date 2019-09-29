@@ -104,7 +104,7 @@ jobs:
       - name: Run Godog integration tests
         run: make test-functional
         env:
-          APP_BASE_URL=http://localhost:5000
+          APP_BASE_URL: http://localhost:5000
 
   push-to-gcr:
     name: Push Docker image to Google Cloud Registry
