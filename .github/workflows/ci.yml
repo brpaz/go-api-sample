@@ -7,6 +7,7 @@ on:
 
 env:
   IMAGE_NAME: go-api-sample:${{github.sha}}
+  FINAL_IMAGE_NAME: gcr.io/$GCLOUD_PROJECT_ID/go-api-sample
 
 jobs:
   lint:
@@ -23,7 +24,7 @@ jobs:
 
       - name: Lint Go Code
         run: |
-          echo $IMAGE_NAME
+          echo $FINAL_IMAGE_NAME
           export PATH=$PATH:$(go env GOPATH)/bin
           go get -u github.com/mgechev/revive
           make lint
@@ -70,13 +71,9 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME .
-        env:
-          IMAGE_NAME: go-api-sample:${{github.sha}}
 
       - name: Save image
         run:  docker save -o image.tar $IMAGE_NAME
-        env:
-          IMAGE_NAME: go-api-sample:${{github.sha}}
 
       - name: Upload image artifact
         uses: actions/upload-artifact@master
@@ -106,7 +103,7 @@ jobs:
         run: docker load -i image/image.tar
 
       - name: Run application
-        run: docker run -d -e APP_ENV=prod -e APP_PORT=5000 -p 5000:5000 go-api-sample:$GITHUB_SHA
+        run: docker run -d -e APP_ENV=prod -e APP_PORT=5000 -p 5000:5000 $IMAGE_NAME
 
       - name: Run Godog integration tests
         run: make test-functional
@@ -122,6 +119,7 @@ jobs:
         uses: actions/download-artifact@master
         with:
           name: image
+
       - name: Load image into docker
         run: docker load -i image/image.tar
 
@@ -132,7 +130,6 @@ jobs:
 
       - name: Tag and push images to Registry
         run: |
-          echo $IMAGE_NAME
           docker tag go-api-sample:$GITHUB_SHA gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:$(echo $GITHUB_SHA | cut -c1-8)
           docker tag go-api-sample:$GITHUB_SHA gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:latest
           docker push gcr.io/$GCLOUD_PROJECT_ID/go-api-sample:latest
