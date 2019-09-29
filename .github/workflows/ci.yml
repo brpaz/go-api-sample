@@ -80,7 +80,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [build]
+    needs: [build-docker]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v1
