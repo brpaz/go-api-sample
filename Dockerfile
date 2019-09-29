@@ -28,7 +28,7 @@ RUN go mod tidy
 FROM build_base AS dev
 RUN go get github.com/markbates/refresh
 
-CMD refresh run
+CMD ["refresh", "run"]
 
 # This image builds the server for production usage
 FROM build_base AS builder
@@ -44,4 +44,4 @@ FROM alpine:3.10 AS final
 # Finally we copy the statically compiled Go binary.
 COPY --from=builder /bin/server /bin/app
 
-ENTRYPOINT ["/bin", "app"]
+ENTRYPOINT ["/bin/app"]

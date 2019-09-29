@@ -7,6 +7,7 @@ setup: ## Boostraps the application
 	GO111MODULE=off go get github.com/markbates/refresh github.com/mgechev/revive
 	pre-commit install
 
+
 dep: ## Get build dependencies
 	go mod tidy
 
@@ -15,6 +16,10 @@ fmt: ## Formats the go code using gofmt
 
 lint: ## Lint code
 	revive -config revive.toml -formatter friendly ./...
+
+lint-dockerfile: ## Lints the Dockerfile
+	@docker run --rm -v "$(PWD):/data" -w "/data" hadolint/hadolint hadolint Dockerfile
+
 
 vet: ## Run go vet
 	go vet ./...
