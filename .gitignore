@@ -19,3 +19,7 @@ dist
 
 # Log files
 *.log
+
+# IDE files
+.idea
+.vscode

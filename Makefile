@@ -26,8 +26,11 @@ test: ## Run package unit tests
 	@go test -v -race -short ./...
 
 test-coverage: ## Run tests with coverage
-	@go test -v -race -short -coverprofile cover.out -covermode=atomic  ./...
-	@cat cover.out >> coverage.txt
+	mkdir -p test/cover
+	@go test -v -race -short -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
+
+test-functional: ## Runs functional
+	go test -v ./test/functional/functional_test.go -godog.random -tags=functional -count=1
 
 up: ## Starts the application
 	docker-compose up
