@@ -6,8 +6,6 @@ on:
   pull_request:
 
 env:
-  BRANCH: $(echo $GITHUB_REF | cut -d "/" -f 3)
-  SHA_SHORT: $(echo $GITHUB_SHA | head -c7)
   APP_NAME: go-api-sample
   TEST_IMAGE_NAME: go-api-sample:${{github.sha}}
   RELEASE_IMAGE_NAME: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/go-api-sample

@@ -5,8 +5,9 @@ engines:
  metric:
  coverage:
    exclude_paths:
-     - config/engines.yml
-languages:
+     - cmd/server
+     - test/functional
+
 exclude_paths:
   - 'vendor/**'
   - '**/testdata/**'
