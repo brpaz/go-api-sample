@@ -130,8 +130,8 @@ jobs:
 
       - name: Tag and push images to Registry
         run: |
-          docker tag $IMAGE_NAME $RELEASE_IMAGE_NAME:$GITHUB_SHA
-          docker tag $IMAGE_NAME $RELEASE_IMAGE_NAME:latest
+          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:$GITHUB_SHA
+          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:latest
           docker push $RELEASE_IMAGE_NAME:$GITHUB_SHA
           docker push $RELEASE_IMAGE_NAME:latest
 
