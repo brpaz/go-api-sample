@@ -140,14 +140,16 @@ jobs:
     runs-on: ubuntu-latest
     needs: ['push-to-gcr']
     container: google/cloud-sdk:alpine
+    env:
+      GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
+      GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
+      GCLOUD_REGION: us-central1
     steps:
       - name: Authenticate on Google Cloud
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
           gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-        env:
-          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
 
       - name: Update Gcloud components
         run: |
@@ -158,8 +160,8 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           gcloud config set run/platform managed
-          gcloud config set run/region us-central1
-          gcloud beta run deploy $APP_NAME --image $RELEASE_IMAGE_NAME:latest --update-env-vars APP_ENV=prod --allow-unauthenticated
+          gcloud config set run/region $GCLOUD_REGION
+          gcloud beta run deploy $APP_NAME --project $GCLOUD_PROJECT_ID --image $RELEASE_IMAGE_NAME:latest --update-env-vars APP_ENV=prod --allow-unauthenticated
 
       - name: Cleanup
         run: rm -f ${HOME}/gcloud-service-key.json
