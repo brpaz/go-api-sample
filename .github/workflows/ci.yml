@@ -148,7 +148,7 @@ jobs:
       - name: Deploy to Cloud Run
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
-          gcloud components update
+          gcloud components update --quiet
           gcloud beta run deploy --image gcr.io/$GCLOUD_PROJECT_ID/go-api-sample \
             --platform managed \
             --set-env-vars APP_ENV=prod
