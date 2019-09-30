@@ -56,12 +56,11 @@ jobs:
         run: make test-coverage
 
       - name: Upload coverage report to Codacy
-        run: |
-            export PATH=$PATH:$(go env GOPATH)/bin
-            go get github.com/schrej/godacov
-            godacov -t $CODACY_TOKEN -r ./test/cover/cover.out -c $GITHUB_SHA
-        env:
-          CODACY_TOKEN: ${{secrets.CODACY_TOKEN}}
+        uses: brpaz/godacov-action@master
+        with:
+          reportPath: './test/cover/cover.out'
+          codacyToken: ${{ secrets.CODACY_TOKEN }}
+          commitId: ${{ github.sha }}
 
   build-docker:
     name: Build Docker Image
