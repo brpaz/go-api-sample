@@ -49,11 +49,11 @@ jobs:
 
       - uses: securego/gosec@master
         with:
-          args: -fmt=JUnit XML -out gosec-results.xml  ./...
+          args: -fmt=junit-xml -out gosec-results.xml  ./...
         env:
           GOROOT: ""
 
-      - run: cat gosec-results.xml
+      - run: ls
         if: always()
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
