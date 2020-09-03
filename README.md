@@ -21,7 +21,7 @@
 
 ## Pre-requisites
 
-- Go 1.13 or higher with [go modules support](https://github.com/golang/go/wiki/Modules) enabled.
+- Go 1.14 or higher with [go modules support](https://github.com/golang/go/wiki/Modules) enabled.
 
 ## Usage
 
@@ -47,6 +47,6 @@ Contributions, issues and feature requests are welcome!
 
 ## 📝 License
 
-Copyright © 2019 [Bruno Paz](https://github.com/brpaz).
+Copyright © 2020 [Bruno Paz](https://github.com/brpaz).
 
 This project is [MIT](LICENSE) licensed.

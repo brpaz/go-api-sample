@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/brpaz/echozap"
 	"github.com/brpaz/go-api-sample/internal/config"
 	"github.com/brpaz/go-api-sample/internal/handlers"
-	appMiddleware "github.com/brpaz/go-api-sample/internal/middleware"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -51,7 +51,7 @@ func startServer() {
 	e.HideBanner = true
 	e.Debug = config.Get().Debug
 
-	e.Use(appMiddleware.ZapLogger(Logger))
+	e.Use(echozap.ZapLogger(Logger))
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())

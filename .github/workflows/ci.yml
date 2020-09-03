@@ -6,9 +6,8 @@ on:
   pull_request:
 
 env:
-  APP_NAME: go-api-sample
-  TEST_IMAGE_NAME: go-api-sample:${{github.sha}}
-  RELEASE_IMAGE_NAME: gcr.io/${{secrets.GCLOUD_PROJECT_ID}}/go-api-sample
+  IMAGE_NAME: go-api-sample:${{ github.sha }}
+  GO_VERSION: 1.14
 
 jobs:
   lint:
@@ -18,150 +17,120 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.12
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
-      - name: Lint Go Code
-        run: |
-          echo $SHA_SHORT
-          export PATH=$PATH:$(go env GOPATH)/bin
-          go get -u github.com/mgechev/revive
-          make lint
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v1
+        with:
+          version: v1.30
 
   lint-dockerfile:
     name: Lint Dockerfile
     runs-on: ubuntu-latest
-    container: pipelinecomponents/hadolint:0.4.0
     steps:
-      - uses: actions/checkout@v1
-      - name: Run Hadolint
-        run: hadolint Dockerfile
+      - uses: actions/checkout@v2
+      - uses: brpaz/hadolint-action@master
 
-  test:
-    name: Test
+  gosec:
+    name: Gosec Security Scanner
     runs-on: ubuntu-latest
-    needs: [lint]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.12
+          go-version: 1.14
+      - name: Check out code
+        uses: actions/checkout@v2
+      - uses: securego/gosec@master
+        with:
+          args: -fmt=JUnit XML -out gosec-results.xml  ./...
+
+      - uses: ashley-taylor/junit-report-annotations-action@1.3
+        if: always()
+        with:
+          name: Gosec Security Results
+          path: gosec.xml
+          access-token: ${{ secrets.GITHUB_TOKEN }}
+
+  unittests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [lint, lint-dockerfile]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
+
+      - name: Setup gotestsum
+        uses: autero1/action-gotestsum@v0.1.0
+        with:
+            gotestsum_version: 0.4.1
 
       - name: Check out code
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
 
-      - name: Run Unit tests.
-        run: make test-coverage
+      - name: Run Unit tests
+        run: gotestsum --junitfile test-report.xml -- -coverprofile=cover.out
+
+      - uses: ashley-taylor/junit-report-annotations-action@1.3
+        if: always()
+        with:
+          name: Test Results
+          path: test-report.xml
+          access-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload coverage report to Codacy
         uses: brpaz/godacov-action@master
+        if: always()
         with:
-          reportPath: './test/cover/cover.out'
+          reportPath: 'cover.out'
           codacyToken: ${{ secrets.CODACY_TOKEN }}
           commitId: ${{ github.sha }}
 
-  build-docker:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    needs: [test]
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v1
+    build:
+      name: Unit Tests
+      runs-on: ubuntu-latest
+      needs: [lint, lint-dockerfile, unittests, gosec]
+      steps:
+        - name: Set up Go
+          uses: actions/setup-go@v1
+          with:
+            go-version: 1.14
 
-      - name: Build Docker image
-        run: docker build --label "commit_sha=$GITHUB_SHA" --label "ref=$GITHUB_REF" -t $TEST_IMAGE_NAME .
+        - name: Check out code
+          uses: actions/checkout@v2
 
-      - name: Save image
-        run:  docker save -o image.tar $TEST_IMAGE_NAME
+        - name: Build Image
+          run: |
+            echo $IMAGE_NAME
+            docker build \
+             --target production \
+              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+              --build-arg VCS_REF=`git rev-parse --short HEAD` \
+              --build-arg VERSION=`1.0.0` \
+             -t $IMAGE_NAME .
 
-      - name: Upload image artifact
-        uses: actions/upload-artifact@master
-        with:
-          name: image
-          path: image.tar
+        - name: Run Container Tests
+          uses: brpaz/structure-tests-action@v1
+          with:
+            image: $IMAGE_NAME
+            configFile: container-structure-test.yaml
 
-  integration-tests:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: [build-docker]
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.12
+    acceptance-tests:
+      name: Acceptance Tests
+      runs-on: ubuntu-latest
+      needs: [build]
+      steps:
+        - run: echo "Integration tests"
 
-      - name: Check out code
-        uses: actions/checkout@v1
-
-      - name: Pull Image artifact
-        uses: actions/download-artifact@master
-        with:
-          name: image
-
-      - name: Load image into docker
-        run: docker load -i image/image.tar
-
-      - name: Run application
-        run: docker run -d -e APP_ENV=prod -e APP_PORT=5000 -p 5000:5000 $TEST_IMAGE_NAME
-
-      - name: Run Godog integration tests
-        run: make test-functional
-        env:
-          APP_BASE_URL: http://localhost:5000
-
-  push-to-gcr:
-    name: Push Docker image to Google Cloud Registry
-    runs-on: ubuntu-latest
-    needs: ['integration-tests']
-    steps:
-      - name: Pull Image artifact
-        uses: actions/download-artifact@master
-        with:
-          name: image
-
-      - name: Load image into docker
-        run: docker load -i image/image.tar
-
-      - name: Login in GCR
-        run:  docker login -u _json_key -p "$GCLOUD_SERVICE_KEY" https://gcr.io
-        env:
-          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
-
-      - name: Tag and push images to Registry
-        run: |
-          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:$GITHUB_SHA
-          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:latest
-          docker push $RELEASE_IMAGE_NAME:$GITHUB_SHA
-          docker push $RELEASE_IMAGE_NAME:latest
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: ['push-to-gcr']
-    container: google/cloud-sdk:alpine
-    env:
-      GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
-      GCLOUD_PROJECT_ID: ${{secrets.GCLOUD_PROJECT_ID}}
-      GCLOUD_REGION: us-central1
-    steps:
-      - name: Authenticate on Google Cloud
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: |
-          echo $GCLOUD_SERVICE_KEY > ${HOME}/gcloud-service-key.json
-          gcloud auth activate-service-account --key-file ${HOME}/gcloud-service-key.json
-
-      - name: Update Gcloud components
-        run: |
-          gcloud components install beta --quiet
-          gcloud components update --quiet
-
-      - name: Deploy to Cloud Run
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        run: |
-          gcloud config set run/platform managed
-          gcloud config set run/region $GCLOUD_REGION
-          gcloud beta run deploy $APP_NAME --project $GCLOUD_PROJECT_ID --image $RELEASE_IMAGE_NAME:latest --update-env-vars APP_ENV=prod --allow-unauthenticated
-
-      - name: Cleanup
-        run: rm -f ${HOME}/gcloud-service-key.json
+    deploy:
+      name: Deploy
+      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      runs-on: ubuntu-latest
+      needs: [build]
+      steps:
+        - run: echo "deploy"

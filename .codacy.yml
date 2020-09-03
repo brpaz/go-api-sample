@@ -6,7 +6,7 @@ engines:
  coverage:
    exclude_paths:
      - cmd/server
-     - test/functional
+     - test/acceptance
 
 exclude_paths:
   - 'vendor/**'

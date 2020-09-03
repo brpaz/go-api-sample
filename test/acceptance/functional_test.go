@@ -1,10 +1,10 @@
-// +build functional
+// +build acceptance
 
 package main
 
 import (
 	"flag"
-	"github.com/brpaz/go-api-sample/test/functional/context"
+	apiContext "github.com/brpaz/godog-api-context"
 	"os"
 	"testing"
 
@@ -27,7 +27,7 @@ func TestMain(m *testing.M) {
 	opt.Paths = flag.Args()
 
 	status := godog.RunWithOptions("godogs", func(s *godog.Suite) {
-		context.NewAPIContext(s, os.Getenv("APP_BASE_URL"))
+		apiContext.NewAPIContext(s, os.Getenv("APP_BASE_URL"))
 	}, opt)
 
 	if st := m.Run(); st > status {

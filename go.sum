@@ -1,5 +1,9 @@
 github.com/DATA-DOG/godog v0.7.13 h1:JmgpKcra7Vf3yzI9vPsWyoQRx13tyKziHtXWDCUUgok=
 github.com/DATA-DOG/godog v0.7.13/go.mod h1:z2OZ6a3X0/YAKVqLfVzYBwFt3j6uSt3Xrqa7XTtcQE0=
+github.com/brpaz/echozap v1.1.0 h1:We1vHCGy4las8dF8VldINhLhG3dDpbMheJyd3ndV2r8=
+github.com/brpaz/echozap v1.1.0/go.mod h1:5NJmhB1VsJbB8cyks5qft57uvgJwgls3t5tJbThIM4Y=
+github.com/brpaz/godog-api-context v0.0.0-20191005105945-4af221a4d392 h1:9/So/O0PdGD5torzJmUjX6kfGzlB5ofViA9hajnM2Mg=
+github.com/brpaz/godog-api-context v0.0.0-20191005105945-4af221a4d392/go.mod h1:20t1wlMxyNEPu36diAZbiPxRXO2EXs4gLaJN/5an1XA=
 github.com/davecgh/go-spew v1.1.0 h1:ZDRjVQ15GmhC3fiQ8ni8+OwkZQO4DARzQgrnXU1Liz8=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dgrijalva/jwt-go v3.2.0+incompatible h1:7qlOGliEKZXTDg6OTjfoBKDXWrumCAMpl/TFQ4/5kLM=
@@ -21,6 +25,7 @@ github.com/mattn/go-isatty v0.0.9 h1:d5US/mDsogSGW37IV293h//ZFaeajb69h+EHFsv2xGg
 github.com/mattn/go-isatty v0.0.9/go.mod h1:YNRxwqDuOph6SZLI9vUUz6OYw3QyUt7WiY2yME+cCiQ=
 github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852 h1:Yl0tPBa8QPjGmesFh1D0rDy+q1Twx6FyU7VWHi8wZbI=
 github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852/go.mod h1:eqOVx5Vwu4gd2mmMZvVZsgIqNSaW3xxRThUJ0k/TPk4=
+github.com/pkg/errors v0.8.1/go.mod h1:bwawxfHBFNV+L2hUp1rHADufV3IMtnDRdf1r5NINEl0=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=

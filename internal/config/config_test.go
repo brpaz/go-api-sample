@@ -1,9 +1,10 @@
 package config
 
 import (
-	"github.com/stretchr/testify/assert"
 	"os"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestLoad(t *testing.T) {
@@ -13,7 +14,7 @@ func TestLoad(t *testing.T) {
 	err := Load()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 1000, Get().Port)
+	assert.Equal(t, 10200, Get().Port)
 
 	// Test if it loads defaults correctly
 	assert.Equal(t, "prod", Get().Env)

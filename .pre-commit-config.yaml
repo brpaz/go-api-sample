@@ -14,12 +14,20 @@ repos:
         entry: make lint
         language: system
         types: [go]
+
+      - id: lint
+        name: Lint code
+        entry: make lint-dockerfile
+        language: system
+        files: 'Dockerfile'
+
       - id: format
         name: Format code
         entry: make fmt
         language: system
         types: [go]
-      - id: format
+
+      - id: unittests
         name: Unit tests
         entry: make test
         language: system
