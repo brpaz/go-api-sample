@@ -50,6 +50,8 @@ jobs:
       - uses: securego/gosec@master
         with:
           args: -fmt=JUnit XML -out gosec-results.xml  ./...
+        env:
+          - GOROOT: ""
 
       - uses: ashley-taylor/junit-report-annotations-action@1.3
         if: always()
