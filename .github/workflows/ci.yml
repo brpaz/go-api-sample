@@ -91,46 +91,46 @@ jobs:
           codacyToken: ${{ secrets.CODACY_TOKEN }}
           commitId: ${{ github.sha }}
 
-    build:
-      name: Unit Tests
-      runs-on: ubuntu-latest
-      needs: [lint, lint-dockerfile, unittests, gosec]
-      steps:
-        - name: Set up Go
-          uses: actions/setup-go@v1
-          with:
-            go-version: 1.14
+  build:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    needs: [lint, lint-dockerfile, unittests, gosec]
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.14
 
-        - name: Check out code
-          uses: actions/checkout@v2
+      - name: Check out code
+        uses: actions/checkout@v2
 
-        - name: Build Image
-          run: |
-            echo $IMAGE_NAME
-            docker build \
-             --target production \
-              --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-              --build-arg VCS_REF=`git rev-parse --short HEAD` \
-              --build-arg VERSION=`1.0.0` \
-             -t $IMAGE_NAME .
+      - name: Build Image
+        run: |
+          echo $IMAGE_NAME
+          docker build \
+           --target production \
+            --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
+            --build-arg VCS_REF=`git rev-parse --short HEAD` \
+            --build-arg VERSION=`1.0.0` \
+           -t $IMAGE_NAME .
 
-        - name: Run Container Tests
-          uses: brpaz/structure-tests-action@v1
-          with:
-            image: $IMAGE_NAME
-            configFile: container-structure-test.yaml
+      - name: Run Container Tests
+        uses: brpaz/structure-tests-action@v1
+        with:
+          image: $IMAGE_NAME
+          configFile: container-structure-test.yaml
 
-    acceptance-tests:
-      name: Acceptance Tests
-      runs-on: ubuntu-latest
-      needs: [build]
-      steps:
-        - run: echo "Integration tests"
+  acceptance-tests:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - run: echo "Integration tests"
 
-    deploy:
-      name: Deploy
-      if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      runs-on: ubuntu-latest
-      needs: [build]
-      steps:
-        - run: echo "deploy"
+  deploy:
+    name: Deploy
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - run: echo "deploy"
