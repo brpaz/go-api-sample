@@ -53,7 +53,7 @@ jobs:
         env:
           GOROOT: ""
 
-      - run: ls
+      - run: cat  gosec-results.xml
         if: always()
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
