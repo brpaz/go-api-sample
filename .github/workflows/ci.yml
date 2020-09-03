@@ -35,32 +35,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: brpaz/hadolint-action@master
 
-  gosec:
-    name: Gosec Security Scanner
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.14
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - uses: securego/gosec@master
-        with:
-          args: -fmt=junit-xml -out gosec-results.xml  ./...
-        env:
-          GOROOT: ""
-
-      - run: cat  gosec-results.xml
-        if: always()
-      - uses: ashley-taylor/junit-report-annotations-action@master
-        if: always()
-        with:
-          path: gosec-results.xml
-          access-token: ${{ secrets.GITHUB_TOKEN }}
-
   unittests:
     name: Unit Tests
     runs-on: ubuntu-latest

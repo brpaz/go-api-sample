@@ -25,9 +25,6 @@ lint: ## Lint Go code
 lint-dockerfile: ## Lint Dockerfile
 	docker run --rm -v "$(PWD):/data" -w "/data" hadolint/hadolint hadolint Dockerfile
 
-gosec: ## Runs Gosec
-	docker run --rm -t -v $(PWD):/app -w /app securego/gosec:v2.4.0 ./...
-
 build: ## Build the app
 	go build -o build/server cmd/server/main.go
 

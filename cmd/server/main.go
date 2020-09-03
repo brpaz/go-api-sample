@@ -20,7 +20,7 @@ func main() {
 
 	// Loads environment variables from ".env file" in dev mode.
 	if os.Getenv("APP_ENV") == "dev" {
-		godotenv.Load()
+		_ = godotenv.Load()
 	}
 
 	// Load config into the application
@@ -42,8 +42,6 @@ func setupLogger() {
 	} else {
 		Logger, _ = zap.NewProduction()
 	}
-
-	defer Logger.Sync()
 }
 
 func startServer() {
