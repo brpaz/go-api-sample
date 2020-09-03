@@ -60,13 +60,13 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v2
         with:
-          name: Test Report
+          name: Unit Tests Report
           path: test-report.xml
 
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
         with:
-          name: Test Results
+          name: Unit Test Results
           path: test-report.xml
           access-token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -79,7 +79,7 @@ jobs:
 #          commitId: ${{ github.sha }}
 
   build:
-    name: Unit Tests
+    name: Build Image
     runs-on: ubuntu-latest
     needs: [lint, lint-dockerfile, unittests]
     steps:
@@ -102,7 +102,7 @@ jobs:
            -t $IMAGE_NAME .
 
       - name: Run Container Tests
-        uses: brpaz/structure-tests-action@v1
+        uses: brpaz/structure-tests-action@v1.1.2
         with:
           image: $IMAGE_NAME
           configFile: container-structure-test.yaml
