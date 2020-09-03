@@ -56,7 +56,7 @@ jobs:
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
         with:
-          path: gosec.xml
+          path: gosec-results.xml
           access-token: ${{ secrets.GITHUB_TOKEN }}
 
   unittests:
