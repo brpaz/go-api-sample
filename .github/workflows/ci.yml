@@ -54,7 +54,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Unit tests
-        run: gotestsum --junitfile test-report.xml -- -coverprofile=cover.out
+        run: gotestsum --junitfile test-report.xml -- -v -short -cover -coverprofile=cover.out ./...
 
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
