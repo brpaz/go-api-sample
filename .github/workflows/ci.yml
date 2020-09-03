@@ -53,8 +53,15 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Run Unit tests
+      - name: Run tests
         run: gotestsum --junitfile test-report.xml -- -v -short -cover -coverprofile=cover.out ./...
+
+      - name: Upload test results artifact
+        if: always()
+        uses: actions/upload-artifact@v2
+        with:
+          name: Test Report
+          path: test-report.xml
 
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()

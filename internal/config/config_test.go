@@ -14,7 +14,7 @@ func TestLoad(t *testing.T) {
 	err := Load()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 10200, Get().Port)
+	assert.Equal(t, 10000, Get().Port)
 
 	// Test if it loads defaults correctly
 	assert.Equal(t, "prod", Get().Env)
