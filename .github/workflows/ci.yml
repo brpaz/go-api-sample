@@ -74,7 +74,7 @@ jobs:
   build:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: [lint, lint-dockerfile, unittests, gosec]
+    needs: [lint, lint-dockerfile, unittests]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v1
