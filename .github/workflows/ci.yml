@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  IMAGE_NAME: go-api-sample:${{ github.sha }}
+  TEST_IMAGE_NAME: go-api-sample:${{ github.sha }}
   GO_VERSION: 1.14
   GO111MODULE: on
 
@@ -93,19 +93,31 @@ jobs:
             --build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
             --build-arg VCS_REF=`git rev-parse --short HEAD` \
             --build-arg VERSION=`1.0.0` \
-           -t $IMAGE_NAME .
+           -t $TEST_IMAGE_NAME .
 
       - name: Run Container Tests
         uses: brpaz/structure-tests-action@v1.1.2
         with:
-          image: ${{ env.IMAGE_NAME }}
+          image: ${{ env.TEST_IMAGE_NAME }}
           configFile: container-structure-test.yaml
+
+      - name: Save image
+        run:  docker save -o /tmp/image.tar $TEST_IMAGE_NAME
+
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          path: /tmp/image.tar
+          key: ${{ runner.os }}-${{ github.sha }}
 
   acceptance-tests:
     name: Acceptance Tests
     runs-on: ubuntu-latest
     needs: [build]
     steps:
+      - name: Load Image
+        run:  docker load -i /tmp/image.tar
+
       - run: echo "Integration tests"
 
   deploy:
