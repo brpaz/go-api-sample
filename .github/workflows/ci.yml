@@ -101,14 +101,14 @@ jobs:
           image: ${{ env.TEST_IMAGE_NAME }}
           configFile: container-structure-test.yaml
 
-      - name: Prepare Docker Cache
+      - name: Save image
+        run:  mkdir -p /tmp/docker-image-cache && docker save -o /tmp/docker-image-cache/image.tar $TEST_IMAGE_NAME
+
+      - name: Docker Cache
         uses: actions/cache@v2
         with:
-            path: /tmp/docker-image-cache
-            key: docker-cache
-
-      - name: Save image
-        run:  docker save -o /tmp/docker-image-cache/image.tar $TEST_IMAGE_NAME
+          path: /tmp/docker-image-cache
+          key: docker-cache
 
   acceptance-tests:
     name: Acceptance Tests
