@@ -1,25 +1,30 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"context"
+	"github.com/sethvargo/go-envconfig"
+)
 
-const envPrefix = "app"
+const (
+	envPrefix = "APP_"
+	EnvDev    = "dev"
+)
 
-// AppConfig struct that holds application configuration variables
-type AppConfig struct {
-	Env   string `default:"prod"`
-	Port  int    `default:"1323" envconfig:"PORT"`
-	Debug bool   `default:"false"`
+// Config struct that holds application configuration
+type Config struct {
+	Env   string `env:"ENV,default=prod"`
+	Port  int    `env:"PORT,default=1234"`
+	Debug bool   `env:"DEBUG,default=false"`
 }
-
-// Config struct with all the configurations
-var config AppConfig
 
 // Load Loads the application config
-func Load() error {
-	return envconfig.Process(envPrefix, &config)
-}
+func Load() (Config, error) {
+	var c Config
 
-// Get Returns the struct contains the application configuration
-func Get() AppConfig {
-	return config
+	ctx := context.Background()
+
+	l := envconfig.PrefixLookuper(envPrefix, envconfig.OsLookuper())
+	err := envconfig.ProcessWith(ctx, &c, l)
+
+	return c, err
 }

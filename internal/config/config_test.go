@@ -1,6 +1,7 @@
-package config
+package config_test
 
 import (
+	"github.com/brpaz/go-api-sample/internal/config"
 	"os"
 	"testing"
 
@@ -9,14 +10,29 @@ import (
 
 func TestLoad(t *testing.T) {
 
-	os.Setenv("APP_PORT", "1000")
+	_ = os.Setenv("APP_PORT", "1000")
+	defer func() {
+		_ = os.Unsetenv("APP_PORT")
+	}()
 
-	err := Load()
+	cfg, err := config.Load()
 
 	assert.Nil(t, err)
-	assert.Equal(t, 1000, Get().Port)
+	assert.Equal(t, 1000, cfg.Port)
 
 	// Test if it loads defaults correctly
-	assert.Equal(t, "prod", Get().Env)
-	assert.False(t, Get().Debug)
+	assert.Equal(t, "prod", cfg.Env)
+	assert.False(t, cfg.Debug)
+}
+
+func TestLoad_WithError(t *testing.T) {
+
+	_ = os.Setenv("APP_DEBUG", "invalid-value")
+	defer func() {
+		_ = os.Unsetenv("APP_DEBUG")
+	}()
+
+	_, err := config.Load()
+
+	assert.NotNil(t, err)
 }

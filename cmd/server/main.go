@@ -1,63 +1,54 @@
 package main
 
 import (
-	"fmt"
+	"github.com/brpaz/go-api-sample/internal/app"
+	"github.com/labstack/gommon/log"
 	"os"
 
-	"github.com/brpaz/echozap"
 	"github.com/brpaz/go-api-sample/internal/config"
-	"github.com/brpaz/go-api-sample/internal/handlers"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"go.uber.org/zap"
 )
 
-// Logger The application logger
-var Logger *zap.Logger
-
-func main() {
-
-	// Loads environment variables from ".env file" in dev mode.
+// Loads environment variables from ".env file" in dev mode.
+func dotenv() {
 	if os.Getenv("APP_ENV") == "dev" {
-		_ = godotenv.Load()
+		if err := godotenv.Load(); err != nil {
+			log.Errorf("Failed to load dotenv file", err)
+		}
+	}
+}
+
+func setupLogger(cfg config.Config) (*zap.Logger, error) {
+	if cfg.Env == config.EnvDev {
+		return zap.NewDevelopment()
 	}
 
+	return zap.NewProduction()
+}
+
+// Main function
+func main() {
+
+	dotenv()
+
 	// Load config into the application
-	if err := config.Load(); err != nil {
-		panic(err)
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatalf("Failed to load application configuration", err)
 	}
 
 	// Setups the application logger
-	setupLogger()
+	logger, err := setupLogger(cfg)
 
-	// Configures and starts the application
-	startServer()
-}
-
-func setupLogger() {
-
-	if config.Get().Env == "dev" {
-		Logger, _ = zap.NewDevelopment()
-	} else {
-		Logger, _ = zap.NewProduction()
+	if err != nil {
+		log.Fatalf("Failed to configure application logger", err)
 	}
-}
 
-func startServer() {
-	e := echo.New()
-	e.HideBanner = true
-	e.Debug = config.Get().Debug
+	appInstance := app.New(cfg, logger)
 
-	e.Use(echozap.ZapLogger(Logger))
-	e.Use(middleware.RequestID())
-	e.Use(middleware.Recover())
-	e.Use(middleware.Gzip())
-
-	// Routes
-	e.GET("/hello", handlers.Hello)
-	e.GET("/_health", handlers.Health)
-
-	port := fmt.Sprintf(":%d", config.Get().Port)
-	e.Logger.Fatal(e.Start(port))
+	if err := appInstance.Boot(); err != nil {
+		logger.Fatal("Failed to start application server:" + err.Error())
+	}
 }

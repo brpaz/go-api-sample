@@ -5,7 +5,7 @@ DOCKER_LOCAL_PROD_IMAGE_NAME := "go-api:local-prod"
 # The run mode, helps running commands inside a Docker container or in local machine directly.
 RUN_MODE_DOCKER:="docker"
 RUN_MODE_LOCAL="local"
-RUN_MODE ?= RUN_MODE_DOCKER
+RUN_MODE ?= RUN_MODE_LOCAL
 
 .PHONY: help fmt lint lint-dockerfile build build-docker test test-coverage test-acceptance start restart down logs sh
 .DEFAULT_GOAL:=help
@@ -47,13 +47,9 @@ ifeq ($(RUN_MODE), RUN_MODE_DOCKER)
 	make build-docker
 	docker run --rm -t -v "$(PWD):/src/app" $(DOCKER_LOCAL_IMAGE_NAME) go test -v -short ./...
 else
-	go test -v -race -short ./...
-endif
-
-test-coverage: ## Run tests with coverage
-	mkdir -p test/cover
-	go test -v -race -short -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
+	go test -v -race -short  -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
 	go tool cover -html=./test/cover/cover.out
+endif
 
 test-acceptance: ## Runs acceptance tests
 	go test -v ./test/functional/functional_test.go -godog.random -tags=functional -count=1
