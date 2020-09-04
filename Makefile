@@ -58,7 +58,7 @@ else
 endif
 
 test-acceptance: ## Runs acceptance tests
-	go test -v ./test/functional/functional_test.go -godog.random -tags=functional -count=1
+	go test -v ./test/acceptance -godog.random -godog.format=pretty -tags=acceptance -count=1
 
 start: ## Starts the application
 	docker-compose up -d

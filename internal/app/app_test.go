@@ -18,6 +18,6 @@ func TestStartApp_Success(t *testing.T) {
 
 	// TODO look for better ways to really check if the server has started
 	go func() {
-		_ = app.New(cfg, logger).Boot()
+		_ = app.New(cfg, logger).StartServer()
 	}()
 }

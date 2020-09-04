@@ -14,13 +14,13 @@ import (
 func dotenv() {
 	if os.Getenv("APP_ENV") == "dev" {
 		if err := godotenv.Load(); err != nil {
-			log.Errorf("Failed to load dotenv file", err)
+			log.Info("Failed to load dotenv file:" + err.Error())
 		}
 	}
 }
 
 func setupLogger(cfg config.Config) (*zap.Logger, error) {
-	// Handle output format in dev plus debug mode.
+	// TODO Handle output format in dev plus debug mode.
 	if cfg.Env == config.EnvDev {
 		return zap.NewDevelopment()
 	}
@@ -49,7 +49,7 @@ func main() {
 
 	appInstance := app.New(cfg, logger)
 
-	if err := appInstance.Boot(); err != nil {
+	if err := appInstance.StartServer(); err != nil {
 		logger.Fatal("Failed to start application server:" + err.Error())
 	}
 }
