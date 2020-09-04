@@ -27,7 +27,9 @@ RUN go mod tidy
 # Development stage
 FROM build_base AS dev
 RUN go mod download
+
 RUN go get github.com/markbates/refresh
+
 CMD ["refresh", "run"]
 
 # This image builds the server for production usage
@@ -36,7 +38,7 @@ FROM build_base AS builder
 # Here we copy the rest of the source code
 COPY . .
 # And compile the project
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /bin/server cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildDate=${BUILD_DATE}' -X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildCommit=${VCS_REF}'"  -o /bin/server cmd/server/main.go
 
 #In this last stage, we start from a fresh Alpine image, to reduce the image size and not ship the Go compiler in our production artifacts.
 FROM alpine:3.11 AS production

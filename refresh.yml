@@ -11,7 +11,7 @@ build_target_path: "./cmd/server"
 build_path: build
 build_flags: []
 build_delay: 200ns
-binary_name: server
+binary_name: app
 command_flags: []
 command_env: ["APP_ENV=dev"]
 enable_colors: true

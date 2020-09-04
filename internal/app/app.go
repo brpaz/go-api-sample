@@ -18,6 +18,7 @@ type App struct {
 
 // New Creates a new instance of the application
 func New(config config.Config, logger *zap.Logger) *App {
+
 	app := &App{
 		config: config,
 		logger: logger,

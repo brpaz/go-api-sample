@@ -20,6 +20,7 @@ func dotenv() {
 }
 
 func setupLogger(cfg config.Config) (*zap.Logger, error) {
+	// Handle output format in dev plus debug mode.
 	if cfg.Env == config.EnvDev {
 		return zap.NewDevelopment()
 	}

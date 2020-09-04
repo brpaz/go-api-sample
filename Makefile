@@ -1,15 +1,25 @@
+# =======================================================================================
+# This makefile contains common tasks to help with the development of the application.
+# =======================================================================================
 
-DOCKER_LOCAL_IMAGE_NAME := "go-api:local-dev"
-DOCKER_LOCAL_PROD_IMAGE_NAME := "go-api:local-prod"
+# Make configurations
+.PHONY: help fmt lint lint-dockerfile build build-docker test test-coverage test-acceptance start restart down logs sh
+.DEFAULT_GOAL:=help
+.SILENT: ;
+
+# Project variables
+PROJECT_NAME:="go-api"
+
+DOCKER_LOCAL_IMAGE_NAME:= $(PROJECT_NAME):local-dev
+DOCKER_CONTAINER_TESTS_IMAGE:=$(PROJECT_NAME):container-tests
+
+NOW:=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
+VERSION:=$(shell git rev-parse --short HEAD)-dev
 
 # The run mode, helps running commands inside a Docker container or in local machine directly.
 RUN_MODE_DOCKER:="docker"
 RUN_MODE_LOCAL="local"
 RUN_MODE ?= RUN_MODE_LOCAL
-
-.PHONY: help fmt lint lint-dockerfile build build-docker test test-coverage test-acceptance start restart down logs sh
-.DEFAULT_GOAL:=help
-.SILENT: ;
 
 -include .env
 
@@ -26,21 +36,17 @@ lint-dockerfile: ## Lint Dockerfile
 	docker run --rm -v "$(PWD):/data" -w "/data" hadolint/hadolint hadolint Dockerfile
 
 build: ## Build the app
-	go build -o build/server cmd/server/main.go
+	go build -o build/app -ldflags="-X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildDate=$(NOW)' -X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildCommit=$(VERSION)'" cmd/server/main.go
+
+run: build ## Runs the app
+	./build/app
 
 build-docker: ## Builds the application using Docker for development purposes
 	docker build  \
-		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-        --build-arg VCS_REF="" \
+		--build-arg BUILD_DATE=$(NOW) \
+        --build-arg VCS_REF=$(VERSION) \
 		--target=dev \
 		. -t $(DOCKER_LOCAL_IMAGE_NAME)
-
-build-docker-prod: ## Builds the application using Docker for production purposes
-	docker build  \
-    		--build-arg BUILD_DATE=`date -u +"%Y-%m-%dT%H:%M:%SZ"` \
-            --build-arg VCS_REF="" \
-    		--target=production \
-    		. -t $(DOCKER_LOCAL_PROD_IMAGE_NAME)
 
 test: ## Run unit tests
 ifeq ($(RUN_MODE), RUN_MODE_DOCKER)
@@ -69,12 +75,18 @@ logs: start ## Display logs of the application
 sh: start ## Opens a terminal in the application container
 	docker-compose exec app sh
 
-container-test: build-docker-prod ## Runs container structure tests
+container-test: ## Runs container structure tests on Docker image
+	docker build  \
+    		--build-arg BUILD_DATE=$(NOW) \
+            --build-arg VCS_REF=$(VERSION) \
+    		--target=production \
+    		. -t $(DOCKER_CONTAINER_TESTS_IMAGE)
+
 	docker run -i --rm \
       -v /var/run/docker.sock:/var/run/docker.sock \
       -v $(PWD):/test -w /test zemanlx/container-structure-test:v1.8.0-alpine \
         test \
-        --image $(DOCKER_LOCAL_PROD_IMAGE_NAME) \
+        --image $(DOCKER_CONTAINER_TESTS_IMAGE) \
         --config container-structure-test.yaml
 
 help: ## Displays help menu
