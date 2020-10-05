@@ -4,7 +4,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"github.com/brpaz/go-api-sample/internal/app"
 	"log"
 	"net/http/httptest"
@@ -12,15 +11,15 @@ import (
 	"testing"
 
 	"github.com/brpaz/go-api-sample/internal/config"
-	"github.com/joho/godotenv"
-	"go.uber.org/zap"
 	apicontext "github.com/brpaz/godog-api-context"
 	"github.com/cucumber/godog"
+	"github.com/joho/godotenv"
+	"go.uber.org/zap"
 )
 
 var opts = godog.Options{
-	Output: os.Stdout,
-	Format: "pretty",
+	Output:        os.Stdout,
+	Format:        "pretty",
 	StopOnFailure: true,
 }
 

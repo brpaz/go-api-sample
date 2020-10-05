@@ -1,0 +1,20 @@
+{
+	"name": "docs",
+	"version": "1.0.0",
+	"description": "Go API Example documentation",
+	"main": "index.js",
+	"license": "MIT",
+	"scripts": {
+		"dev": "nuxt",
+		"build": "nuxt build",
+		"start": "nuxt start",
+		"generate": "nuxt generate",
+		"redoc:serve": "redoc-cli serve ./api/openapi.yaml",
+		"redoc:build": "redoc-cli bundle ./api/openapi.yaml"
+	},
+	"dependencies": {
+		"@nuxt/content-theme-docs": "^0.6.1",
+		"nuxt": "^2.14.6",
+		"redoc-cli": "^0.9.12"
+	}
+}

@@ -78,4 +78,3 @@ func (app *App) buildContainer() {
 
 	app.di = builder.Build()
 }
-

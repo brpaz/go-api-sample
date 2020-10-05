@@ -1,7 +1,7 @@
 package buildinfo
 
 const (
-	AppName = "go-echo-sample"
+	AppName        = "go-echo-sample"
 	AppDescription = "An example Golang application"
 )
 

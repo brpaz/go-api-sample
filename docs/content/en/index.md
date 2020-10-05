@@ -1,10 +1,13 @@
-# go-api-sample
+---
+title: 'Introduction'
+position: 1
+category: 'Getting started'
+fullscreen: false
+---
 
-> Comprehensive example of how to build a complete Golang API, including Clean architecture concepts, Dependency Injection, tests, CI Pipeline, documentation and more.
+This project provides a comprehensive example of how to build a complete Golang API, including some Clean architechture concepts, Dependency Injection, tests, CI Pipeline and more.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-[![GitHub Actions](https://github.com/brpaz/go-api-sample/workflows/CI/badge.svg?style=for-the-badge)](https://github.com/brpaz/go-api-sample/actions)
-
+It demonstrates how I like to structure Go apps and aims to be my personal Golang API boilerplate.
 
 ## What is included
 
@@ -24,20 +27,6 @@ It uses the following tools and libraries:
 
 and more ...
 
-## Getting started
+## Running the project
 
-To understand how this application is structured and how you can run it on your local machine, please see the [documentation](https://github.io/brpaz/go-api-sample).
-
-
-## Author
-
-👤 **Bruno Paz**
-
-  * Website: [https://github.com/brpaz](https://github.com/brpaz)
-  * Github: [@brpaz](https://github.com/brpaz)
-
-## 📝 License
-
-Copyright © 2020 [Bruno Paz](https://github.com/brpaz).
-
-This project is [MIT](LICENSE) licensed.
+To run this project, please see the [Installation Guide](/installation-guide).

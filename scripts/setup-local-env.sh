@@ -9,3 +9,5 @@ then
 fi
 
 pre-commit install
+
+cd docs && yarn install

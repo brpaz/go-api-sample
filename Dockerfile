@@ -1,10 +1,20 @@
+# Application dockerfile.
+# - The build_base stage is responsible for preparing the envrionment and install go mod dependencies.
+# - The dev stage is the stage using during development. it contains tools that are only needed in development like pg client, docker cli
+# and custom entrypoints
+# - The builder stage builds the application binary for production
+# - The production stage only contains the application binary.
 FROM golang:1.14-alpine AS build_base
 
 ARG BUILD_DATE
 ARG VCS_REF
 
 # hadolint ignore=DL3019
-RUN apk add bash ca-certificates git gcc g++ libc-dev make
+RUN apk add bash curl ca-certificates git gcc g++ libc-dev make
+
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.13.0/migrate.linux-amd64.tar.gz | tar xvz &&  \
+	mv migrate.linux-amd64 /usr/local/bin/migrate && \
+	migrate -version
 
 RUN mkdir -p /src/app
 WORKDIR /src/app
@@ -26,9 +36,23 @@ RUN go mod tidy
 
 # Development stage
 FROM build_base AS dev
+
+# hadolint ignore=DL3019
+RUN apk add postgresql-client
+
+COPY --from=build_base /usr/local/bin/migrate /usr/local/bin/migrate
+
 RUN go mod download
 
+COPY docker/wait-for-it.sh /usr/local/bin/wait-for-it
+COPY docker/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
+
+RUN chmod +x /usr/local/bin/wait-for-it && \
+	chmod +x /usr/local/bin/docker-entrypoint
+
 RUN go get github.com/markbates/refresh
+
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 
 CMD ["refresh", "run"]
 
@@ -47,11 +71,12 @@ ENV APP_ENV=prod
 
 # Finally we copy the statically compiled Go binary.
 COPY --from=builder /bin/server /bin/app
+COPY --from=builder /usr/local/bin/migrate /usr/local/bin/migrate
 
 ENTRYPOINT ["/bin/app"]
 
 LABEL maintainer="Bruno Paz <oss@brunopaz.dev>" \
-      org.opencontainers.image.title="Go API Sample" \
+      org.opencontainers.image.title="Go API Boilerplate" \
       org.opencontainers.image.description="Sample project demonstrating my best practices for a Golang based API" \
       org.opencontainers.image.url="https://github.com/brpaz/golang-api-sample" \
       org.opencontainers.image.source="git@github.com:brpaz/golang-api-sample" \

@@ -1,0 +1,128 @@
+openapi: 3.0.0
+info:
+  title: Golang API Sample
+  version: '1.0'
+  contact:
+    name: Bruno Paz
+    url: 'https://brunopaz.dev'
+    email: oss@brunopaz.dev
+  license:
+    name: MIT
+  description: |-
+    This is the API documentation for the [Golang API sample](https://github.com/brpaz/go-api-sample) project.
+    It contains a basic API to manage Todos.
+servers:
+  - url: 'http://go-api-sample.docker'
+paths:
+  /_health:
+    get:
+      summary: Healthcheck
+      tags: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+              examples:
+                success:
+                  value:
+                    status: pass
+                    checks:
+                      'cpu:utilization':
+                        - componentId: 1 minute
+                          componentType: system
+                          observedValue: 1
+                          observedUnit: '%'
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                        - componentId: 5 minutes
+                          componentType: system
+                          observedValue: 1
+                          observedUnit: '%'
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                        - componentId: 15 minutes
+                          componentType: system
+                          observedValue: 1
+                          observedUnit: '%'
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                      hostname:
+                        - componentId: hostname
+                          componentType: system
+                          observedValue: dc8ea880576c
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                      'memory:utilization':
+                        - componentId: Total Memory
+                          componentType: system
+                          observedValue: 15819
+                          observedUnit: MB
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                        - componentId: Free Memory
+                          componentType: system
+                          observedValue: 285
+                          observedUnit: MB
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                      uptime:
+                        - componentId: uptime
+                          componentType: system
+                          observedValue: 2484
+                          observedUnit: s
+                          status: pass
+                          time: '2020-10-05T09:15:56.439293006Z'
+                    serviceId: go-echo-sample
+                    description: An example Golang application
+        '503':
+          description: Service Unavailable
+      operationId: get-_health
+      description: 'Provides information about the application healthcheck, following the [Healthcheck RFC]()'
+  /todo:
+    get:
+      summary: List of Todos
+      tags: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Todo'
+              examples:
+                success:
+                  value:
+                    - id: 1
+                      content: my todo
+                      created_at: '2020-05-03T05:20:00'
+          description: Success response
+      operationId: list-todos
+      description: Returns a list of todos
+components:
+  schemas:
+    Todo:
+      title: Todo
+      type: object
+      description: Represents a Todo item
+      properties:
+        id:
+          type: integer
+          description: The ID of the todo
+        content:
+          type: string
+          description: The description of the todo
+          minLength: 1
+          maxLength: 255
+        created_at:
+          type: string
+          description: The creation date
+          format: date-time
+      required:
+        - id
+        - content
+        - created_at
