@@ -3,13 +3,9 @@
 # of the application.
 # ====================================================================
 
-.PHONY: help fmt lint lint-docker test test container-test build up down restart db-migrate db-migration-create logs sh docs docs-api
+.PHONY: help fmt lint lint-docker test test container-test build up down restart db-migrate db-migration-create logs sh docs docs-api mocks
 .DEFAULT_GOAL:=help
 .SILENT: ;
-
-# ====================================================================
-# Global variables
-# ====================================================================
 
 PROJECT_NAME:="go-api"
 DOCKER_CONTAINER_TESTS_IMAGE:=$(PROJECT_NAME):container-tests
@@ -44,7 +40,7 @@ test: ## Run unit tests
 	$(COMPOSE_RUN) go tool cover -html=./test/cover/cover.out
 
 test-integration: ## Runs acceptance tests
-	$(COMPOSE_RUN) go test -v   ./... --tags=integrationdb -count=1 -p 1
+	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go
 
 test-acceptance: ## Runs acceptance tests
 	$(COMPOSE_RUN) go test -v ./test/acceptance -godog.random -godog.format=pretty -tags=acceptance -count=1
@@ -90,6 +86,9 @@ db-migration-create: ## Creates a new Migration file
 
 db-migrate: ## Runs Database migrations
 	$(COMPOSE_RUN) migrate -path=migrations -database postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_DATABASE)?sslmode=disable up
+
+mocks: ## Generate Mocks
+	$(COMPOSE_RUN) mockery --all --inpackage --case underscore
 
 # ==============================================================
 # Other

@@ -4,18 +4,24 @@ import (
 	"time"
 )
 
+type Repository interface {
+	FindAll() ([]Todo, error)
+	Create(todo Todo) (Todo, error)
+}
+
 type Todo struct {
-	ID          int32     `json:"id"`
+	ID          uint      `json:"id"`
 	Description string    `json:"description"`
 	CreatedAt   time.Time `json:"created_at"`
 }
 
-type CreateTodo struct {
-	Description string `json:"description"`
+func NewTodo(description string) Todo {
+	return Todo{
+		CreatedAt: time.Now(),
+		Description: description,
+	}
 }
 
-type GormTodo struct {
-	ID          uint `gorm:"primaryKey"`
-	Description string
-	CreatedAt   time.Time `gorm:"autoCreateTime"`
+type CreateTodo struct {
+	Description string `json:"description" validate:"required"`
 }

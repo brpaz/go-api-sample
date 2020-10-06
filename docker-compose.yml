@@ -28,8 +28,6 @@ services:
       - "${NGINX_PROXY_PORT_HTTPS:-443}:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-    environment:
-      - DHPARAM_GENERATION=false
     labels:
       com.github.aegypius.mkcert-for-nginx-proxy.nginx_proxy: ''
 

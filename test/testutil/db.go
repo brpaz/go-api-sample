@@ -9,6 +9,12 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"sync"
+)
+
+var (
+	dbConn *gorm.DB
+	once   sync.Once
 )
 
 // Migrate Runs database migrations on the test db
@@ -28,7 +34,7 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 	m, err := migrate.NewWithDatabaseInstance(
-		"file://../../../migrations",
+		"file://migrations",
 		"postgres", driver)
 
 	if err != nil {
@@ -52,21 +58,36 @@ func CreateDB(db *gorm.DB, dbName string) error {
 	return db.Exec(stmt).Error
 }
 
+// GetTestDBName returns the name of the test DB.
+func GetTestDBName() string {
+	return fmt.Sprintf("%s_test", os.Getenv("DB_DATABASE"))
+}
+
 // GetConnection Returns the connection to the test db
-func GetTestDBConnection() (*gorm.DB, error) {
-	dbHost := os.Getenv("DB_HOST")
-	dbPort := os.Getenv("DB_PORT")
-	dbUser := os.Getenv("DB_USER")
-	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := fmt.Sprintf("%s_test", os.Getenv("DB_DATABASE"))
+func GetTestDBConnection() *gorm.DB {
 
-	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
-		dbHost,
-		dbUser,
-		dbPassword,
-		dbName,
-		dbPort,
-	)
+	once.Do(func() {
+		dbHost := os.Getenv("DB_HOST")
+		dbPort := os.Getenv("DB_PORT")
+		dbUser := os.Getenv("DB_USER")
+		dbPassword := os.Getenv("DB_PASSWORD")
+		dbName := GetTestDBName()
 
-	return gorm.Open(gormPG.Open(dsn), &gorm.Config{})
+		dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
+			dbHost,
+			dbUser,
+			dbPassword,
+			dbName,
+			dbPort,
+		)
+
+		db, err := gorm.Open(gormPG.Open(dsn), &gorm.Config{})
+		if err != nil {
+			panic(err)
+		}
+
+		dbConn = db
+	})
+
+	return dbConn
 }

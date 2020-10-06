@@ -12,7 +12,7 @@ ARG VCS_REF
 # hadolint ignore=DL3019
 RUN apk add bash curl ca-certificates git gcc g++ libc-dev make
 
-RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.13.0/migrate.linux-amd64.tar.gz | tar xvz &&  \
+RUN curl -L https://github.com/golang-migrate/migrate/releases/download/v4.13.0/migrate.linux-amd64.tar.gz | tar xz &&  \
 	mv migrate.linux-amd64 /usr/local/bin/migrate && \
 	migrate -version
 
@@ -41,6 +41,10 @@ FROM build_base AS dev
 RUN apk add postgresql-client
 
 COPY --from=build_base /usr/local/bin/migrate /usr/local/bin/migrate
+
+RUN curl -L https://github.com/vektra/mockery/releases/download/v2.3.0/mockery_2.3.0_Linux_x86_64.tar.gz  | tar xz -C /tmp &&  \
+	mv /tmp/mockery /usr/local/bin/mockery && \
+	mockery --version
 
 RUN go mod download
 

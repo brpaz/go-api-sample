@@ -1,5 +1,3 @@
-// +build integrationdb
-
 package main
 
 import (
@@ -7,36 +5,29 @@ import (
 	"fmt"
 	_ "github.com/DATA-DOG/go-txdb"
 	"github.com/brpaz/go-api-sample/test/testutil"
-	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 	"os"
-	"testing"
+	"os/exec"
 )
 
-var logger *zap.Logger
-
-func getConnection(dsn string) (*gorm.DB, error) {
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{})
-}
-
-func setupDB() {
+// prepares the test database
+func setupDB()  {
 	dbHost := os.Getenv("DB_HOST")
 	dbPort := os.Getenv("DB_PORT")
 	dbUser := os.Getenv("DB_USER")
 	dbPassword := os.Getenv("DB_PASSWORD")
-	dbName := fmt.Sprintf("%s_test", os.Getenv("DB_DATABASE"))
+	dbName := testutil.GetTestDBName()
 
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=disable",
 		dbHost,
 		dbUser,
 		dbPassword,
 		"postgres",
-		dbPort,
-	)
+		dbPort)
 
-	adminDb, err := getConnection(dsn)
+	adminDb, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Fatalf("failed to connect to the database: %v", err)
@@ -51,24 +42,46 @@ func setupDB() {
 		dbUser,
 		dbPassword,
 		dbName,
-		dbPort,
-	)
+		dbPort)
 
-	db, err := getConnection(dsn)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err := testutil.Migrate(db); err != nil {
 		log.Fatalf("failed to run database migrations: %v", err)
 	}
 }
 
+func runTests() error {
+	cmd := exec.Command("go", "test", "-v", "--tags", "integrationdb", "-p", "1", "./...")
+	cmd.Env = os.Environ()
+	cmd.Stdout = os.Stdout
+
+	if err := cmd.Start(); err != nil {
+		return err
+	}
+
+	if err := cmd.Wait(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // TestMain is the entry point to the application database integration tests.
 // It is responsible to setup the database for tests by creating the test database and run the migrations on the new schema and launch the tests.
-func TestMain(m *testing.M) {
-
+func main() {
 	flag.Parse()
 
-	// setup database
+	if os.Getenv("APP_ENV") != "test" {
+		log.Fatal("You can only run this command with APP_ENV=test")
+	}
+
+	log.Println("Setup DB")
+
 	setupDB()
 
-	// run tests
-	os.Exit(m.Run())
+	log.Println("Running Tests")
+
+	if err := runTests(); err != nil {
+		os.Exit(-1)
+	}
 }

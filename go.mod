@@ -8,6 +8,7 @@ require (
 	github.com/brpaz/go-healthcheck v1.0.0
 	github.com/brpaz/godog-api-context v1.3.0
 	github.com/cucumber/godog v0.10.0
+	github.com/go-playground/validator/v10 v10.4.0
 	github.com/golang-migrate/migrate/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo/v4 v4.1.10
@@ -18,4 +19,5 @@ require (
 	go.uber.org/zap v1.10.0
 	gorm.io/driver/postgres v1.0.2
 	gorm.io/gorm v1.20.2
+	syreclabs.com/go/faker v1.2.2
 )

@@ -1,15 +1,28 @@
 package todo
 
-type CreateUseCase struct {
+type CreateUseCase interface {
+	Execute(request CreateTodo) (Todo, error)
+}
+
+type createUseCase struct {
 	repo Repository
 }
 
-func NewCreateUseCase(repo Repository) CreateUseCase {
-	return CreateUseCase{
+func NewCreateUseCase(repo Repository) createUseCase {
+	return createUseCase{
 		repo: repo,
 	}
 }
 
-func (uc CreateUseCase) Execute(todo CreateTodo) (Todo, error) {
-	return Todo{}, nil
+// Execute executes the creation of a new todo
+func (uc createUseCase) Execute(request CreateTodo) (Todo, error) {
+
+	todoEntity := NewTodo(request.Description)
+	createdTodo, err := uc.repo.Create(todoEntity)
+
+	if err != nil {
+		return Todo{}, err
+	}
+
+	return createdTodo, nil
 }

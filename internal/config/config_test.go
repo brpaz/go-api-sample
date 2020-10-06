@@ -13,6 +13,7 @@ import (
 func TestLoad(t *testing.T) {
 
 	_ = os.Setenv("APP_PORT", "1000")
+	_ = os.Unsetenv("APP_DEBUG")
 	defer func() {
 		_ = os.Unsetenv("APP_PORT")
 	}()
@@ -21,9 +22,6 @@ func TestLoad(t *testing.T) {
 
 	assert.Nil(t, err)
 	assert.Equal(t, 1000, cfg.Port)
-
-	// Test if it loads defaults correctly
-	assert.Equal(t, "prod", cfg.Env)
 	assert.False(t, cfg.Debug)
 }
 
