@@ -20,7 +20,7 @@ func TestPgRepository_CreateTodo(t *testing.T) {
 
 	repo := todo.NewPgRepository(tx)
 
-	td, err := repo.CreateTodo(todo.Todo{
+	td, err := repo.Create(todo.Todo{
 		Description: faker.Lorem().Sentence(5),
 		CreatedAt:   faker.Date().Backward(24 * 7 * time.Hour),
 	})
@@ -37,7 +37,7 @@ func TestPgRepository_CreateTodoWithInvalidData(t *testing.T) {
 
 	repo := todo.NewPgRepository(tx)
 
-	_, err := repo.CreateTodo(todo.Todo{})
+	_, err := repo.Create(todo.Todo{})
 
 	fmt.Println(err)
 	assert.NotNil(t, err)

@@ -4,10 +4,13 @@ import (
 	"context"
 	"fmt"
 	"github.com/brpaz/echozap"
+	"github.com/brpaz/go-api-sample/internal/app/di"
 	"github.com/brpaz/go-api-sample/internal/config"
+	appHttp "github.com/brpaz/go-api-sample/internal/http"
+	"github.com/brpaz/go-api-sample/internal/http/healthcheck"
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/sarulabs/di"
 	"go.uber.org/zap"
 	"net/http"
 )
@@ -15,43 +18,46 @@ import (
 type App struct {
 	config config.Config
 	logger *zap.Logger
-	di     di.Container
+	dic    di.Container
 	server *echo.Echo
 }
 
 // New Creates a new instance of the application
 func New(config config.Config, logger *zap.Logger) *App {
-
-	app := &App{
+	return &App{
 		config: config,
 		logger: logger,
+		dic:    di.BuildContainer(config),
 	}
-
-	app.bootstrap()
-	return app
 }
 
-// bootstraps the application. This function is responsible for building the DI container and to configure the Echo web server
-func (app *App) bootstrap() {
-	app.buildContainer()
+// StartServer This function is responsible to start the application server
+func (app *App) StartServer() error {
 
 	e := echo.New()
 	e.HideBanner = true
 	e.Debug = app.config.Debug
+	e.Validator = appHttp.NewRequestValidator(validator.New())
+	e.HTTPErrorHandler = appHttp.ErrorHandler
 
 	e.Use(echozap.ZapLogger(app.logger))
 	e.Use(middleware.RequestID())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 
-	// Routes
-	app.registerRoutes(e)
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello")
+	})
+
+	hh := app.dic.Get(di.ServiceHealcheckHandler).(healthcheck.Handler)
+	e.GET("/_health", hh.Handle)
+
+	/*todosCreateHandler :=  app.dic.Get(di.ServiceTodoCreateUseCase).(*todo.CreateHandler)
+	e.POST("/todos", todosCreateHandler.Handle)*/
 
 	app.server = e
-}
 
-// StartServer This function is responsible to start the application server
-func (app *App) StartServer() error {
+
 	port := fmt.Sprintf(":%d", app.config.Port)
 
 	return app.server.Start(port)
@@ -69,12 +75,4 @@ func (app *App) Shutdown() error {
 // integration with the httptest server, to easy start the application in a testing scenario.
 func (app *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	app.server.ServeHTTP(w, r)
-}
-
-func (app *App) buildContainer() {
-	// TODO handle error
-	// TODO this logic can be moved outsite of app when we start having many services definitions
-	builder, _ := di.NewBuilder()
-
-	app.di = builder.Build()
 }

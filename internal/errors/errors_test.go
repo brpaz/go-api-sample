@@ -17,10 +17,8 @@ func TestNewApplicationError_withOriginalError(t *testing.T) {
 }
 
 func TestNewApplicationError_withoutOriginalError(t *testing.T) {
-
 	err := appErrors.NewApplicationError(appErrors.ErrCodeInternalError, "custom error message")
 	assert.Equal(t, appErrors.ErrCodeInternalError, err.Code)
 	assert.Equal(t, "custom error message", err.Message)
 	assert.Nil(t, err.OriginalErr)
 }
-

@@ -9,7 +9,6 @@ import (
 )
 
 // ZapLogger is an example of echo middleware that logs requests using logger "zap"
-// TODO create a separate package with this
 func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {

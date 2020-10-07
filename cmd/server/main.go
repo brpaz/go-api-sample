@@ -13,6 +13,7 @@ import (
 // Loads environment variables from ".env file" in dev mode.
 func dotenv() {
 	if os.Getenv("APP_ENV") == "dev" {
+		log.Info("loading .env")
 		if err := godotenv.Load(); err != nil {
 			log.Info("Failed to load dotenv file:" + err.Error())
 		}
@@ -47,9 +48,7 @@ func main() {
 		log.Fatalf("Failed to configure application logger", err)
 	}
 
-	appInstance := app.New(cfg, logger)
-
-	if err := appInstance.StartServer(); err != nil {
+	if err := app.New(cfg, logger).StartServer(); err != nil {
 		logger.Fatal("Failed to start application server:" + err.Error())
 	}
 }

@@ -12,9 +12,17 @@ const (
 
 // Config struct that holds application configuration
 type Config struct {
-	Env   string `env:"ENV,default=prod"`
-	Port  int    `env:"PORT,default=1234"`
-	Debug bool   `env:"DEBUG,default=false"`
+	Env   string `env:"APP_ENV,default=prod"`
+	Port  int    `env:"APP_PORT,default=1234"`
+	Debug bool   `env:"APP_DEBUG,default=false"`
+	DB struct{
+		Host string `env:"DB_HOST,required"`
+		Port uint `env:"DB_PORT,required"`
+		User string `env:"DB_USER,required"`
+		Password string `env:"DB_PASSWORD,required"`
+		Database string `env:"DB_DATABASE,required"`
+		Driver string   `env:"DB_DRIVER,default=postgres"`
+	}
 }
 
 // Load Loads the application config
@@ -23,8 +31,7 @@ func Load() (Config, error) {
 
 	ctx := context.Background()
 
-	l := envconfig.PrefixLookuper(envPrefix, envconfig.OsLookuper())
-	err := envconfig.ProcessWith(ctx, &c, l)
+	err := envconfig.Process(ctx, &c)
 
 	return c, err
 }

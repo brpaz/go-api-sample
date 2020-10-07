@@ -8,6 +8,7 @@ require (
 	github.com/brpaz/go-healthcheck v1.0.0
 	github.com/brpaz/godog-api-context v1.3.0
 	github.com/cucumber/godog v0.10.0
+	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.0
 	github.com/golang-migrate/migrate/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0

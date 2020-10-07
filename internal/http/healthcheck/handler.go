@@ -1,7 +1,6 @@
 package healthcheck
 
 import (
-	"github.com/brpaz/go-api-sample/internal/buildinfo"
 	"net/http"
 
 	"github.com/brpaz/go-healthcheck"
@@ -9,10 +8,22 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-// HealthHandler Handler for the health check endpoint
-func HealthHandler(c echo.Context) error {
+type Handler struct {
+	AppName string
+	AppDescription string
+	BuildCommit string
+}
 
-	health := healthcheck.New(buildinfo.AppName, buildinfo.AppDescription, buildinfo.BuildCommit, "")
+func NewHandler(appName string, appDescription string, buildCommit string) Handler {
+	return Handler{
+		AppName:        appName,
+		AppDescription: appDescription,
+		BuildCommit:    buildCommit,
+	}
+}
+
+func (h *Handler) Handle(c echo.Context) error {
+	health := healthcheck.New(h.AppName, h.AppDescription, h.BuildCommit, "")
 	health.AddCheckProvider(checks.NewSysInfoChecker())
 
 	healthResult := health.Get()

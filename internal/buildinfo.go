@@ -1,4 +1,4 @@
-package buildinfo
+package internal
 
 const (
 	AppName        = "go-echo-sample"

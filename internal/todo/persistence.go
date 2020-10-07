@@ -37,6 +37,7 @@ type PgRepository struct {
 	db *gorm.DB
 }
 
+
 func NewPgRepository(db *gorm.DB) PgRepository {
 	return PgRepository{
 		db: db,
@@ -59,7 +60,7 @@ func (repo *PgRepository) FindAll() ([]Todo, error) {
 	return domainTodos, nil
 }
 
-func (repo *PgRepository) CreateTodo(todo Todo) (Todo, error) {
+func (repo *PgRepository) Create(todo Todo) (Todo, error) {
 	dbEntity := GormTodo{}.FromDomain(todo)
 
 	if err := repo.db.Save(&dbEntity).Error; err != nil {

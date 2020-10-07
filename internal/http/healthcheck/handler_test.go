@@ -4,7 +4,7 @@ package healthcheck_test
 
 import (
 	"encoding/json"
-	"github.com/brpaz/go-api-sample/internal/healthcheck"
+	healthcheck2 "github.com/brpaz/go-api-sample/internal/http/healthcheck"
 	healthecklib "github.com/brpaz/go-healthcheck"
 	"net/http"
 	"net/http/httptest"
@@ -22,7 +22,7 @@ func TestHealthHandler(t *testing.T) {
 	c := e.NewContext(req, resp)
 
 	// Assertions
-	if assert.NoError(t, healthcheck.HealthHandler(c)) {
+	if assert.NoError(t, healthcheck2.HealthHandler(c)) {
 		assert.Equal(t, http.StatusOK, resp.Code)
 
 		var response healthecklib.Health
