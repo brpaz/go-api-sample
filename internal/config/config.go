@@ -24,6 +24,7 @@ type Config struct {
 		Driver string   `env:"DB_DRIVER,default=postgres"`
 	}
 	LogLevel string `env:"LOG_LEVEL,default=info"`
+	MetricsEnabled bool `env:"METRICS_ENABLED,default=false"`
 }
 
 // Load Loads the application config

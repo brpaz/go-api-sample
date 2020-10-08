@@ -70,7 +70,7 @@ func mapValidationErrors(ve validator.ValidationErrors, validator *RequestValida
 	for _, e := range ve {
 		mappedErrors = append(mappedErrors, FieldError{
 			Code:     validator.MapErrorCodeFromTag(e.Tag()),
-			Message:  validator.MapErrorMessage(e),
+			Message:  validator.FormatErrorMessage(e),
 			Location: validator.NormalizeFieldName(e),
 		})
 	}

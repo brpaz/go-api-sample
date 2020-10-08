@@ -22,11 +22,11 @@ const (
 	ServiceHealcheckHandler = "healthcheck.handler"
 )
 
+
 func getServiceDefinitions(config config.Config) []dic.Definition {
 	var defs = []dic.Definition{
 		{
 			Name:  ServiceDB,
-			Scope: dic.App,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				logger := ctn.Get(ServiceLogger).(*zap.Logger)
 				return db.GetConnection(config, logger)

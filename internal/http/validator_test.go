@@ -66,6 +66,19 @@ func (e *MockValidationError) Error() string {
 	return "error"
 }
 
+func TestRequestValidator_Validate(t *testing.T) {
+	type mystruct struct {
+		Value string `json:"description" validate:"required"`
+	}
+
+	validatorInstance := http.NewRequestValidator(validator.New())
+	err := validatorInstance.Validate(&mystruct{
+		Value: "test",
+	})
+
+	assert.Nil(t, err)
+}
+
 func TestRequestValidator_MapErrorCodeFromTag(t *testing.T) {
 	type test struct {
 		tag  string
