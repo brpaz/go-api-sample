@@ -38,8 +38,8 @@ type PgRepository struct {
 }
 
 
-func NewPgRepository(db *gorm.DB) PgRepository {
-	return PgRepository{
+func NewPgRepository(db *gorm.DB) *PgRepository {
+	return &PgRepository{
 		db: db,
 	}
 }

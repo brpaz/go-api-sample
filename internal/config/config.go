@@ -6,8 +6,8 @@ import (
 )
 
 const (
-	envPrefix = "APP_"
 	EnvDev    = "dev"
+	EnvProd   = "prod"
 )
 
 // Config struct that holds application configuration
@@ -23,6 +23,7 @@ type Config struct {
 		Database string `env:"DB_DATABASE,required"`
 		Driver string   `env:"DB_DRIVER,default=postgres"`
 	}
+	LogLevel string `env:"LOG_LEVEL,default=info"`
 }
 
 // Load Loads the application config

@@ -9,8 +9,8 @@ type CreateHandler struct {
 	useCase CreateUseCase
 }
 
-func NewCreateHandler(useCase CreateUseCase) CreateHandler {
-	return CreateHandler{
+func NewCreateHandler(useCase CreateUseCase) *CreateHandler {
+	return &CreateHandler{
 		useCase: useCase,
 	}
 }

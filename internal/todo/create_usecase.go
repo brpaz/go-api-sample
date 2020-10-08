@@ -8,14 +8,14 @@ type createUseCase struct {
 	repo Repository
 }
 
-func NewCreateUseCase(repo Repository) createUseCase {
-	return createUseCase{
+func NewCreateUseCase(repo Repository) *createUseCase {
+	return &createUseCase{
 		repo: repo,
 	}
 }
 
 // Execute executes the creation of a new todo
-func (uc createUseCase) Execute(request CreateTodo) (Todo, error) {
+func (uc *createUseCase) Execute(request CreateTodo) (Todo, error) {
 
 	todoEntity := NewTodo(request.Description)
 	createdTodo, err := uc.repo.Create(todoEntity)

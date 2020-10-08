@@ -7,11 +7,13 @@ import (
 	"github.com/brpaz/go-api-sample/internal/http/healthcheck"
 	"github.com/brpaz/go-api-sample/internal/todo"
 	dic "github.com/sarulabs/di"
+	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 const (
 	ServiceDB = "db"
+	ServiceLogger = "logger"
 	ServiceTodoRepository = "todo.repository"
 	ServiceTodoCreateHandler = "todo.handler.create"
 	ServiceTodoListHandler = "todo.handler.list"
@@ -26,14 +28,15 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			Name:  ServiceDB,
 			Scope: dic.App,
 			Build: func(ctn dic.Container) (interface{}, error) {
-				return db.GetConnection(config)
+				logger := ctn.Get(ServiceLogger).(*zap.Logger)
+				return db.GetConnection(config, logger)
 			},
 		},
 		{
 			Name: ServiceTodoRepository,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				dbConn := ctn.Get(ServiceDB).(*gorm.DB)
-				return todo.NewPgRepository(dbConn), nil
+				return todo.NewPgRepository(dbConn),  nil
 			},
 		},
 		{
@@ -49,7 +52,6 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			Build: func(ctn dic.Container) (interface{}, error) {
 				repo := ctn.Get(ServiceTodoRepository).(*todo.PgRepository)
 				return todo.NewCreateUseCase(repo), nil
-
 			},
 		},
 		{
@@ -62,7 +64,8 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 		{
 			Name: 	ServiceHealcheckHandler,
 			Build: func(ctn dic.Container) (interface{}, error) {
-				return healthcheck.NewHandler(internal.AppName, internal.AppDescription, internal.BuildCommit), nil
+				dbConn := ctn.Get(ServiceDB).(*gorm.DB)
+				return healthcheck.NewHandler(internal.AppName, internal.AppDescription, internal.BuildCommit,dbConn), nil
 			},
 		},
 	}

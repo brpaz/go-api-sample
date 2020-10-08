@@ -8,8 +8,8 @@ type listUseCase struct {
 	repo Repository
 }
 
-func NewListUseCase(repo Repository) listUseCase {
-	return listUseCase{
+func NewListUseCase(repo Repository) *listUseCase {
+	return &listUseCase{
 		repo: repo,
 	}
 }

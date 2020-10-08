@@ -36,8 +36,8 @@ lint-docker: ## Lint Dockerfile
 	docker run --rm -v "$(PWD):/data" -w "/data" hadolint/hadolint hadolint Dockerfile
 
 test: ## Run unit tests
-	$(COMPOSE_RUN) go test -v -short --tags=unit  -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
-	$(COMPOSE_RUN) go tool cover -html=./test/cover/cover.out
+	$(COMPOSE_RUN) gotestsum --format testname -- -v -tags=unit -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
+	go tool cover -html=./test/cover/cover.out
 
 test-integration: ## Runs acceptance tests
 	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go

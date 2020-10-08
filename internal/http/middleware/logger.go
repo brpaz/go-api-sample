@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -30,23 +31,23 @@ func ZapLogger(log *zap.Logger) echo.MiddlewareFunc {
 			fields := []zapcore.Field{
 				zap.Int("status", res.Status),
 				zap.String("latency", time.Since(start).String()),
-				zap.String("request_id", id),
-				zap.String("method", req.Method),
-				zap.String("uri", req.RequestURI),
+				zap.String("correlation_id", id),
 				zap.String("host", req.Host),
 				zap.String("remote_ip", c.RealIP()),
+				zap.String("user_agent", req.UserAgent()),
 			}
 
+			label := fmt.Sprintf("%s %s", req.Method, req.RequestURI)
 			n := res.Status
 			switch {
 			case n >= 500:
-				log.Error("Server error", fields...)
+				log.Error(label, fields...)
 			case n >= 400:
-				log.Warn("Client error", fields...)
+				log.Warn(label, fields...)
 			case n >= 300:
-				log.Info("Redirection", fields...)
+				log.Info(label, fields...)
 			default:
-				log.Info("Success", fields...)
+				log.Info(label, fields...)
 			}
 
 			return nil

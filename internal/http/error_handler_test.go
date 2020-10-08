@@ -10,10 +10,15 @@ import (
 	"github.com/brpaz/go-api-sample/test/testutil"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
+
+func getMockErrorHandler() *appHttp.ErrorHandler {
+	return appHttp.NewErrorHandler(zap.NewNop())
+}
 
 func TestErrorHandler_GenericError(t *testing.T) {
 
@@ -22,7 +27,7 @@ func TestErrorHandler_GenericError(t *testing.T) {
 
 	ctx := testutil.CreateEchoTestContext(req, rec)
 
-	appHttp.ErrorHandler(errors.New("some-error"), ctx)
+	getMockErrorHandler().Handle(errors.New("some-error"), ctx)
 
 	var respBody appHttp.ErrorResponse
 	if err := json.NewDecoder(rec.Body).Decode(&respBody); err != nil {
@@ -31,7 +36,7 @@ func TestErrorHandler_GenericError(t *testing.T) {
 
 	assert.Equal(t, http.StatusInternalServerError, rec.Code)
 	assert.Equal(t, appErrors.ErrCodeInternalError, respBody.Code )
-	assert.Equal(t, "internal error", respBody.Message)
+	assert.Equal(t, "Internal Error", respBody.Message)
 }
 
 func TestErrorHandler_EchoHTTPError(t *testing.T) {
@@ -41,7 +46,7 @@ func TestErrorHandler_EchoHTTPError(t *testing.T) {
 
 	ctx := testutil.CreateEchoTestContext(req, rec)
 
-	appHttp.ErrorHandler(echo.NewHTTPError(http.StatusServiceUnavailable, "message"), ctx)
+	getMockErrorHandler().Handle(echo.NewHTTPError(http.StatusServiceUnavailable, "message"), ctx)
 
 	var respBody appHttp.ErrorResponse
 	if err := json.NewDecoder(rec.Body).Decode(&respBody); err != nil {

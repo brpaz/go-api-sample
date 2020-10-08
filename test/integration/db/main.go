@@ -51,7 +51,7 @@ func setupDB()  {
 }
 
 func runTests() error {
-	cmd := exec.Command("go", "test", "-v", "--tags", "integrationdb", "-p", "1", "./...")
+	cmd := exec.Command("gotestsum", "--format", "testname","--", "-v", "--tags", "integrationdb", "-p", "1", "./...")
 	cmd.Env = os.Environ()
 	cmd.Stdout = os.Stdout
 

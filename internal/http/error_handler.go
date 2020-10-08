@@ -4,6 +4,7 @@ import (
 	appErrors "github.com/brpaz/go-api-sample/internal/errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"go.uber.org/zap"
 	"net/http"
 )
 
@@ -21,8 +22,18 @@ type FieldError struct {
 	Location string `json:"location"`
 }
 
+type ErrorHandler struct {
+	logger *zap.Logger
+}
+
+func NewErrorHandler(logger *zap.Logger) *ErrorHandler {
+	return &ErrorHandler{
+		logger: logger,
+	}
+}
+
 // ErrorHandler custom HTTP error handler
-func ErrorHandler(err error, c echo.Context) {
+func (h *ErrorHandler) Handle(err error, c echo.Context) {
 	httpCode := http.StatusInternalServerError
 	errCode := appErrors.ErrCodeInternalError
 	errMessage := appErrors.ErrMessageInternalError
@@ -31,10 +42,9 @@ func ErrorHandler(err error, c echo.Context) {
 	if he, ok := err.(*echo.HTTPError); ok {
 		httpCode = he.Code
 		errMessage = he.Message.(string)
-		c.Logger().Warn(he)
 	} else if ae, ok := err.(*appErrors.ApplicationError); ok {
 		errMessage = ae.Message
-		c.Logger().Error(ae)
+		h.logger.Error("Http Error", zap.String("message", errMessage), zap.Error(err))
 	} else if ve, ok := err.(validator.ValidationErrors); ok {
 		httpCode = http.StatusUnprocessableEntity
 		errCode = appErrors.ErrCodeValidationFailed
@@ -43,7 +53,7 @@ func ErrorHandler(err error, c echo.Context) {
 		validatorInstance := c.Echo().Validator.(*RequestValidator)
 		fieldErrors = mapValidationErrors(ve, validatorInstance)
 
-		c.Logger().Info(ve)
+		h.logger.Warn("Validation Error", zap.Error(err))
 	}
 
 	response := ErrorResponse{

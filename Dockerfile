@@ -46,6 +46,10 @@ RUN curl -L https://github.com/vektra/mockery/releases/download/v2.3.0/mockery_2
 	mv /tmp/mockery /usr/local/bin/mockery && \
 	mockery --version
 
+RUN curl -L https://github.com/gotestyourself/gotestsum/releases/download/v0.5.3/gotestsum_0.5.3_linux_amd64.tar.gz | tar xz -C /tmp && \
+	mv /tmp/gotestsum /usr/local/bin/gotestsum && \
+	gotestsum --version
+
 RUN go mod download
 
 COPY docker/wait-for-it.sh /usr/local/bin/wait-for-it
@@ -66,7 +70,7 @@ FROM build_base AS builder
 # Here we copy the rest of the source code
 COPY . .
 # And compile the project
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildDate=${BUILD_DATE}' -X 'github.com/brpaz/go-api-sample/internal/buildinfo.BuildCommit=${VCS_REF}'"  -o /bin/server cmd/server/main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/brpaz/go-api-sample/internal.BuildDate=${BUILD_DATE}' -X 'github.com/brpaz/go-api-sample/internal.BuildCommit=${VCS_REF}'"  -o /bin/server cmd/server/main.go
 
 #In this last stage, we start from a fresh Alpine image, to reduce the image size and not ship the Go compiler in our production artifacts.
 FROM alpine:3.11 AS production
