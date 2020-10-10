@@ -14,9 +14,9 @@ import (
 func TestCreateUseCase_Execute_Created(t *testing.T) {
 
 	createdTodo := todo.Todo{
-		ID:  1,
+		ID:          1,
 		Description: "My todo",
-		CreatedAt: time.Now(),
+		CreatedAt:   time.Now(),
 	}
 
 	repoMock := &todo.MockRepository{}

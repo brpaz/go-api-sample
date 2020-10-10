@@ -13,8 +13,8 @@ import (
 )
 
 type MockValidationError struct {
-	FieldName string
-	FieldTag string
+	FieldName  string
+	FieldTag   string
 	FieldValue interface{}
 }
 
@@ -54,7 +54,7 @@ func (e *MockValidationError) Kind() reflect.Kind {
 	return reflect.String
 }
 
-func (e *MockValidationError)  Type() reflect.Type {
+func (e *MockValidationError) Type() reflect.Type {
 	return reflect.TypeOf(e.Value())
 }
 
@@ -127,6 +127,6 @@ func TestRequestValidator_FormatErrorMessage(t *testing.T) {
 	}
 	for _, tc := range tests {
 		msg := validatorInstance.FormatErrorMessage(err)
-		assert.Equal(t, tc.output , msg)
+		assert.Equal(t, tc.output, msg)
 	}
 }

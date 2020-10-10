@@ -17,7 +17,7 @@ type Todo struct {
 
 func NewTodo(description string) Todo {
 	return Todo{
-		CreatedAt: time.Now(),
+		CreatedAt:   time.Now(),
 		Description: description,
 	}
 }

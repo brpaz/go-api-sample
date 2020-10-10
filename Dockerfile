@@ -9,6 +9,8 @@ FROM golang:1.14-alpine AS build_base
 ARG BUILD_DATE
 ARG VCS_REF
 
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
 # hadolint ignore=DL3019
 RUN apk add bash curl ca-certificates git gcc g++ libc-dev make
 
@@ -36,6 +38,8 @@ RUN go mod tidy
 
 # Development stage
 FROM build_base AS dev
+
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
 # hadolint ignore=DL3019
 RUN apk add postgresql-client

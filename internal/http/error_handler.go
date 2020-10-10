@@ -62,7 +62,7 @@ func (h *ErrorHandler) Handle(err error, c echo.Context) {
 		Fields:  fieldErrors,
 	}
 
-	c.JSON(httpCode, response)
+	_ = c.JSON(httpCode, response)
 }
 
 func mapValidationErrors(ve validator.ValidationErrors, validator *RequestValidator) []FieldError {

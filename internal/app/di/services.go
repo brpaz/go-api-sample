@@ -12,21 +12,20 @@ import (
 )
 
 const (
-	ServiceDB = "db"
-	ServiceLogger = "logger"
-	ServiceTodoRepository = "todo.repository"
+	ServiceDB                = "db"
+	ServiceLogger            = "logger"
+	ServiceTodoRepository    = "todo.repository"
 	ServiceTodoCreateHandler = "todo.handler.create"
-	ServiceTodoListHandler = "todo.handler.list"
+	ServiceTodoListHandler   = "todo.handler.list"
 	ServiceTodoCreateUseCase = "todo.usecase.create"
-	ServiceTodoListUseCase = "todo.usecase.list"
-	ServiceHealcheckHandler = "healthcheck.handler"
+	ServiceTodoListUseCase   = "todo.usecase.list"
+	ServiceHealcheckHandler  = "healthcheck.handler"
 )
-
 
 func getServiceDefinitions(config config.Config) []dic.Definition {
 	var defs = []dic.Definition{
 		{
-			Name:  ServiceDB,
+			Name: ServiceDB,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				logger := ctn.Get(ServiceLogger).(*zap.Logger)
 				return db.GetConnection(config, logger)
@@ -36,7 +35,7 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			Name: ServiceTodoRepository,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				dbConn := ctn.Get(ServiceDB).(*gorm.DB)
-				return todo.NewPgRepository(dbConn),  nil
+				return todo.NewPgRepository(dbConn), nil
 			},
 		},
 		{
@@ -62,10 +61,10 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			},
 		},
 		{
-			Name: 	ServiceHealcheckHandler,
+			Name: ServiceHealcheckHandler,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				dbConn := ctn.Get(ServiceDB).(*gorm.DB)
-				return healthcheck.NewHandler(internal.AppName, internal.AppDescription, internal.BuildCommit,dbConn), nil
+				return healthcheck.NewHandler(internal.AppName, internal.AppDescription, internal.BuildCommit, dbConn), nil
 			},
 		},
 	}

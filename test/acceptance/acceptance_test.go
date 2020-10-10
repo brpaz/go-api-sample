@@ -5,6 +5,7 @@ package main
 import (
 	"flag"
 	"github.com/brpaz/go-api-sample/internal/app"
+	"github.com/brpaz/go-api-sample/test/testutil"
 	"log"
 	"net/http/httptest"
 	"os"
@@ -23,11 +24,8 @@ var opts = godog.Options{
 	StopOnFailure: true,
 }
 
-var url string
-
 func init() {
 	godog.BindFlags("godog.", flag.CommandLine, &opts)
-	flag.StringVar(&url, "app.url", "", "The URL under test")
 }
 
 func createApp() *app.App {
@@ -44,6 +42,8 @@ func createApp() *app.App {
 		log.Fatal("Failed to load application config:" + err.Error())
 	}
 
+	cfg.Env = config.EnvTest // force test env.
+
 	return app.New(cfg, logger)
 }
 
@@ -53,13 +53,22 @@ func TestMain(m *testing.M) {
 
 	opts.Paths = flag.Args()
 
+	_, err := testutil.SetupDB()
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// If the URL is not defined, we start a new instance of the App server for the tests.
 	// If the URL is passed as an argument, we call that url directly.
+	url := os.Getenv("APP_URL")
 	if url == "" {
-		app := createApp()
+		appInstance := createApp()
 
-		ts := httptest.NewServer(app)
+		ts := httptest.NewServer(appInstance)
 		defer ts.Close()
+
+		log.Printf("Test application running on: %s \n", ts.URL)
 
 		url = ts.URL
 	}

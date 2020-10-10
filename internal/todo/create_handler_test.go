@@ -57,10 +57,31 @@ func TestCreteTodoHandler_Success(t *testing.T) {
 	h := todo.NewCreateHandler(useCaseMock)
 	h.Handle(ctx)
 
-	/*var respObj appHttp.ErrorResponse
+	var respObj todo.Todo
 	if err := json.NewDecoder(resp.Body).Decode(&respObj); err != nil {
 		assert.Fail(t, "Failed to decode response", err)
-	}*/
+	}
 
 	assert.Equal(t, http.StatusCreated, resp.Code)
+	assert.Equal(t, "test", respObj.Description)
+}
+
+func TestCreteTodoHandler_Error(t *testing.T) {
+
+	var jsonBody = []byte(`{"description":"test"}`)
+
+	req := httptest.NewRequest(http.MethodPost, "/todo", bytes.NewBuffer(jsonBody))
+	req.Header.Add("Content-type", "application/json")
+	resp := httptest.NewRecorder()
+	ctx := testutil.CreateEchoTestContext(req, resp)
+
+	useCaseMock := &todo.MockCreateUseCase{}
+	useCaseMock.On("Execute", todo.CreateTodo{
+		Description: "test",
+	}).Return(todo.Todo{}, errors.NewApplicationError(errors.ErrCodeInternalError, "ERROR"))
+
+	h := todo.NewCreateHandler(useCaseMock)
+	h.Handle(ctx)
+
+	assert.Equal(t, http.StatusInternalServerError, resp.Code)
 }

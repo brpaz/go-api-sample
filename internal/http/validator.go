@@ -21,7 +21,6 @@ func (cv *RequestValidator) Validate(i interface{}) error {
 	return cv.validator.Struct(i)
 }
 
-
 // NormalizeFieldName Normalizes a field name from a field error. Ex: lowercase.
 func (cv *RequestValidator) NormalizeFieldName(fieldError validator.FieldError) string {
 	return strings.ToLower(fieldError.StructField())
@@ -49,7 +48,6 @@ func (cv *RequestValidator) FormatErrorMessage(vE validator.FieldError) string {
 	switch vE.Tag() {
 	case "required":
 		message = fmt.Sprintf("%s is a required field", vE.StructField())
-		break
 	}
 
 	return message

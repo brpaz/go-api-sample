@@ -1,11 +1,10 @@
-package app
+package http
 
 import (
 	"context"
 	"fmt"
 	"github.com/brpaz/go-api-sample/internal/app/di"
 	"github.com/brpaz/go-api-sample/internal/config"
-	appHttp "github.com/brpaz/go-api-sample/internal/http"
 	"github.com/brpaz/go-api-sample/internal/http/healthcheck"
 	appMiddleware "github.com/brpaz/go-api-sample/internal/http/middleware"
 	"github.com/brpaz/go-api-sample/internal/todo"
@@ -28,10 +27,10 @@ type Server struct {
 // NewServer Creates a new instance of the application server
 func NewServer(cfg config.Config, logger *zap.Logger, dic di.Container) *Server {
 	srv := Server{
-		e:      echo.New(),
-		logger: logger,
-		config: cfg,
-		diContainer:  dic,
+		e:           echo.New(),
+		logger:      logger,
+		config:      cfg,
+		diContainer: dic,
 	}
 
 	srv.configure()
@@ -44,8 +43,8 @@ func NewServer(cfg config.Config, logger *zap.Logger, dic di.Container) *Server 
 func (srv *Server) configure() {
 	srv.e.HideBanner = true
 	srv.e.HidePort = true
-	srv.e.Validator = appHttp.NewRequestValidator(validator.New())
-	srv.e.HTTPErrorHandler = appHttp.NewErrorHandler(srv.logger).Handle
+	srv.e.Validator = NewRequestValidator(validator.New())
+	srv.e.HTTPErrorHandler = NewErrorHandler(srv.logger).Handle
 }
 
 func (srv *Server) registerMiddlewares() {
@@ -56,10 +55,7 @@ func (srv *Server) registerMiddlewares() {
 
 	if srv.config.MetricsEnabled {
 		p := prometheus.NewPrometheus("echo", func(c echo.Context) bool {
-			if strings.HasPrefix(c.Path(), "/_heatlh") {
-				return true
-			}
-			return false
+			return strings.HasPrefix(c.Path(), "/_heatlh")
 		})
 		p.Use(srv.e)
 	}
@@ -77,6 +73,7 @@ func (srv *Server) registerRoutes() {
 	srv.e.POST("/todos", todosCreateHandler.Handle)
 }
 
+// Start start the application server on the configured port
 func (srv *Server) Start() error {
 	port := fmt.Sprintf(":%d", srv.config.Port)
 
@@ -84,7 +81,13 @@ func (srv *Server) Start() error {
 	return srv.e.Start(port)
 }
 
+// Shutdown stops the application server
 func (srv *Server) Shutdown(ctx context.Context) error {
 	srv.logger.Info("stopping server")
 	return srv.e.Shutdown(ctx)
+}
+
+// Shutdown stops the application server
+func (srv *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	srv.e.ServeHTTP(w, r)
 }

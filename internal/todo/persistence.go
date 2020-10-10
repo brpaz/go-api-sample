@@ -37,7 +37,6 @@ type PgRepository struct {
 	db *gorm.DB
 }
 
-
 func NewPgRepository(db *gorm.DB) *PgRepository {
 	return &PgRepository{
 		db: db,

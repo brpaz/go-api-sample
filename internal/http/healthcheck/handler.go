@@ -10,10 +10,10 @@ import (
 )
 
 type Handler struct {
-	AppName string
+	AppName        string
 	AppDescription string
-	BuildCommit string
-	db *gorm.DB
+	BuildCommit    string
+	db             *gorm.DB
 }
 
 func NewHandler(appName string, appDescription string, buildCommit string, db *gorm.DB) *Handler {
@@ -21,13 +21,13 @@ func NewHandler(appName string, appDescription string, buildCommit string, db *g
 		AppName:        appName,
 		AppDescription: appDescription,
 		BuildCommit:    buildCommit,
-		db: db,
+		db:             db,
 	}
 }
 
 func (h *Handler) Handle(c echo.Context) error {
 
-	dbConn, _ :=h.db.DB()
+	dbConn, _ := h.db.DB()
 	health := healthcheck.New(h.AppName, h.AppDescription, h.BuildCommit, "")
 	health.AddCheckProvider(checks.NewSysInfoChecker())
 	health.AddCheckProvider(checks.NewDBChecker("database", dbConn))

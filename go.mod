@@ -3,7 +3,6 @@ module github.com/brpaz/go-api-sample
 go 1.14
 
 require (
-	github.com/DATA-DOG/go-txdb v0.1.3
 	github.com/brpaz/go-healthcheck v1.0.0
 	github.com/brpaz/godog-api-context v1.3.0
 	github.com/cucumber/godog v0.10.0

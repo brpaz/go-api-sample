@@ -16,6 +16,8 @@ VERSION:=$(shell git rev-parse --short HEAD)-dev
 CURRENT_UID := $(shell id -u)
 CURRENT_GID := $(shell id -g)
 
+targets := $(lastword $(MAKEFILE_LIST))
+
 -include .env # loads the .env file
 
 COMPOSE_RUN := docker-compose run --entrypoint "" $(APP_CONTAINER_NAME)
@@ -29,7 +31,9 @@ setup: ## Bootstraps the local development environment
 fmt: ## Formats the go code using gofmt
 	docker run --rm -t -v $(PWD):/app -w /app golang:1.14-alpine gofmt -w -s .
 
-lint: ## Lint Go code
+lint: lint-go lint-docker ## Runs all the linters
+
+lint-go: ## Lint Go code
 	docker run --rm -t -v $(PWD):/app -w /app golangci/golangci-lint:v1.30.0 golangci-lint run -v
 
 lint-docker: ## Lint Dockerfile
@@ -37,13 +41,15 @@ lint-docker: ## Lint Dockerfile
 
 test: ## Run unit tests
 	$(COMPOSE_RUN) gotestsum --format testname -- -v -tags=unit -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
-	go tool cover -html=./test/cover/cover.out
 
 test-integration: ## Runs acceptance tests
 	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go
 
 test-acceptance: ## Runs acceptance tests
-	$(COMPOSE_RUN) go test -v ./test/acceptance -godog.random -godog.format=pretty -tags=acceptance -count=1
+	$(COMPOSE_RUN) go test -v ./test/acceptance -tags=acceptance -count=1 -godog.random -godog.format=pretty -godog.tags="$(TAGS)"
+
+test-smoke: ## Runs smoke tests
+	docker-compose exec -e APP_ENV="test" -e APP_URL=http://localhost:5000 $(APP_CONTAINER_NAME) go test -v ./test/smoke -godog.random -godog.format=pretty -tags=smoketests -count=1
 
 container-test: ## Runs container structure tests on Docker image
 	docker build  \
@@ -101,4 +107,4 @@ docs-api: ## Render API documentation
 	cd docs && yarn redoc:serve
 
 help: ## Displays help menu
-	grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
+	grep -E '^[a-zA-Z_-]+:.*?## .*$$' "Makefile" | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'

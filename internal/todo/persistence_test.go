@@ -1,73 +1,36 @@
-// +build integrationdb
+// +build unit
 
 package todo_test
 
 import (
-	"fmt"
 	"github.com/brpaz/go-api-sample/internal/todo"
-	"github.com/brpaz/go-api-sample/test/testutil"
 	"github.com/stretchr/testify/assert"
 	"syreclabs.com/go/faker"
 	"testing"
 	"time"
 )
 
-func TestPgRepository_CreateTodo(t *testing.T) {
-	db := testutil.GetTestDBConnection()
+func TestGormTodo_ToDomain(t *testing.T) {
+	creationDate := faker.Date().Backward(5 * time.Hour)
 
-	tx := db.Begin()
-	defer tx.Rollback()
-
-	repo := todo.NewPgRepository(tx)
-
-	td, err := repo.Create(todo.Todo{
-		Description: faker.Lorem().Sentence(5),
-		CreatedAt:   faker.Date().Backward(24 * 7 * time.Hour),
-	})
-
-	assert.Nil(t, err)
-	assert.NotNil(t, td.ID)
-}
-
-func TestPgRepository_CreateTodoWithInvalidData(t *testing.T) {
-	db := testutil.GetTestDBConnection()
-
-	tx := db.Begin()
-	defer tx.Rollback()
-
-	repo := todo.NewPgRepository(tx)
-
-	_, err := repo.Create(todo.Todo{})
-
-	fmt.Println(err)
-	assert.NotNil(t, err)
-}
-
-func TestPgRepository_FindAll(t *testing.T) {
-	db := testutil.GetTestDBConnection()
-
-	tx := db.Begin()
-	defer tx.Rollback()
-
-	repo := todo.NewPgRepository(tx)
-
-	todosToCreate := []todo.GormTodo{
-		{
-			Description: faker.Lorem().Sentence(5),
-			CreatedAt:   faker.Date().Backward(24 * 7 * time.Hour),
-		},
-		{
-			Description: faker.Lorem().Sentence(5),
-			CreatedAt:   faker.Date().Backward(24 * 7 * time.Hour),
-		},
+	dbTodo := todo.GormTodo{
+		ID:          1,
+		Description: "test",
+		CreatedAt:   creationDate,
 	}
 
-	if err := tx.Create(&todosToCreate).Error; err != nil {
-		t.Fatal(err)
-	}
+	domainTodo := dbTodo.ToDomain()
+	assert.Equal(t, "test", domainTodo.Description)
+	assert.Equal(t, creationDate, domainTodo.CreatedAt)
+	assert.Equal(t, uint(1), domainTodo.ID)
+}
 
-	result, err := repo.FindAll()
+func TestGormTodo_FromDomain(t *testing.T) {
 
-	assert.Nil(t, err)
-	assert.Len(t, result, 2)
+	domainTodo := todo.NewTodo("test")
+
+	dbTodo := todo.GormTodo{}.FromDomain(domainTodo)
+
+	assert.Equal(t, "test", dbTodo.Description)
+	assert.NotNil(t, dbTodo.CreatedAt)
 }

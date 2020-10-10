@@ -10,11 +10,12 @@ wait-for-it -h ${DB_HOST} -p ${DB_PORT} -t 30 -q
 if [ $? -ne 0 ]
 then
   echo "Failed to ping database host"
-  exit -1
+  exit 255
 fi
 
 export PGPASSWORD=${DB_PASSWORD}
 
+echo "Running Database migrations"
 migrate -path=migrations -database postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_DATABASE?sslmode=disable up
 
 exec "$@"
