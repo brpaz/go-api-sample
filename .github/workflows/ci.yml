@@ -221,7 +221,7 @@ jobs:
             $TEST_IMAGE_NAME
 
       - name: Wait for application startup
-        uses: ifaxity/wait-on-action
+        uses: ifaxity/wait-on-action@v1
         with:
           resource: http://localhost:8080
           delay: 1000
