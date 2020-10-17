@@ -24,12 +24,10 @@ jobs:
           node-version: ${{ env.NODE_VERSION }}
 
       - name: Build Docs
-        run: yarn install && yarn generate
-        working-directory: docs
+        run: cd docs && yarn install && yarn generate
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dist
-        working-directory: docs
+          publish_dir: ./docs/dist
