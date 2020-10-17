@@ -28,6 +28,7 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			Name: ServiceDB,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				logger := ctn.Get(ServiceLogger).(*zap.Logger)
+
 				return db.GetConnection(config, logger)
 			},
 		},

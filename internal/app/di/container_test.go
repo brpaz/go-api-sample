@@ -13,5 +13,11 @@ import (
 func TestBuildContainer(t *testing.T) {
 	cnt := di.BuildContainer(testutil.GetMockConfig(), zap.NewNop())
 
+	for _, def := range cnt.Definitions() {
+		result, err := def.Build(cnt)
+
+		assert.NotNil(t, result)
+		assert.Nil(t, err)
+	}
 	assert.NotEmpty(t, cnt.Definitions())
 }

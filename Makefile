@@ -42,6 +42,9 @@ lint-docker: ## Lint Dockerfile
 test: ## Run unit tests
 	$(COMPOSE_RUN) gotestsum --format testname -- -v -tags=unit -coverprofile ./test/cover/cover.out -covermode=atomic  ./...
 
+coverreport: ## Shows code coverage report
+	go tool cover -html=./test/cover/cover.out
+
 test-integration: ## Runs acceptance tests
 	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go
 

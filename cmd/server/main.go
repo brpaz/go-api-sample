@@ -41,6 +41,10 @@ func main() {
 		log.Fatalf("Failed to configure application logger", err)
 	}
 
+	defer func() {
+		_ = logger.Sync()
+	}()
+
 	appInstance := app.New(cfg, logger)
 
 	go func() {

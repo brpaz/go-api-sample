@@ -2,6 +2,7 @@ package db
 
 import (
 	"fmt"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/brpaz/go-api-sample/internal/config"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
@@ -9,6 +10,8 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 	"moul.io/zapgorm2"
 )
+
+const MockDriverName = "mock"
 
 // GetConnection Returns a database connection
 func GetConnection(cfg config.Config, logger *zap.Logger) (*gorm.DB, error) {
@@ -25,8 +28,18 @@ func GetConnection(cfg config.Config, logger *zap.Logger) (*gorm.DB, error) {
 		l.LogMode(gormLogger.Info)
 	}
 
+	var dialector gorm.Dialector
+	if cfg.DB.Driver == MockDriverName {
+		mockConn, _, _ := sqlmock.New() // mock sql.DB
+		dialector = postgres.New(postgres.Config{
+			Conn: mockConn,
+		})
+	} else {
+		dialector = postgres.Open(dsn)
+	}
+
 	l.SetAsDefault() // optional: configure gorm to use this zapgorm.Logger for callbacks
-	return gorm.Open(postgres.Open(dsn), &gorm.Config{
+	return gorm.Open(dialector, &gorm.Config{
 		Logger: l,
 	})
 }

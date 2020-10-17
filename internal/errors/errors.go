@@ -8,7 +8,6 @@ const (
 	ErrCodeInternalError           = "INTERNAL_ERROR"
 	ErrCodeValidationFailed        = "VALIDATION_FAILED"
 	ErrCodeValidationRequiredField = "REQUIRED"
-	ErrCodeValidationLength        = "LENGTH"
 	ErrCodeValidationAlpha         = "ALPHA"
 	ErrMessageInternalError        = "Internal Error"
 	ErrMessageValidationFailed     = "Validation Failed"

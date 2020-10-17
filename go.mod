@@ -3,6 +3,7 @@ module github.com/brpaz/go-api-sample
 go 1.14
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/brpaz/go-healthcheck v1.0.0
 	github.com/brpaz/godog-api-context v1.5.1
 	github.com/cucumber/godog v0.10.0
