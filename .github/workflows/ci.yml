@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+    paths-ignore:
+      - 'docs/**'
   pull_request:
-  paths-ignore:
-    - 'docs/**'
+    paths-ignore:
+      - 'docs/**'
 env:
   TEST_IMAGE_NAME: go-api-sample:${{ github.sha }}
   GO_VERSION: 1.15
