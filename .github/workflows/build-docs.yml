@@ -23,8 +23,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Build Docs
+      - name: Build Content Docs
         run: cd docs && yarn install && yarn generate
+
+      - name: Build API Docs
+        run: cd docs && yarn redoc:build
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3

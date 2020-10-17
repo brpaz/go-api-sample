@@ -10,7 +10,7 @@
 		"start": "nuxt start",
 		"generate": "nuxt generate",
 		"redoc:serve": "redoc-cli serve ./api/openapi.yaml",
-		"redoc:build": "redoc-cli bundle ./api/openapi.yaml"
+		"redoc:build": "redoc-cli bundle -o=dist/apidoc/index.html  ./api/openapi.yaml"
 	},
 	"dependencies": {
 		"@nuxt/content-theme-docs": "^0.6.1",
