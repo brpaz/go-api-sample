@@ -10,6 +10,7 @@ on:
 
 env:
   NODE_VERSION: '12.x'
+  NODE_ENV: production
 
 jobs:
   build:

@@ -121,6 +121,7 @@ jobs:
           DB_HOST: localhost
           DB_PORT: 5432
           DB_USER: app
+          DB_DATABASE: app
           DB_PASSWORD: chu0eiXa
 
   build:
@@ -155,22 +156,84 @@ jobs:
             path: /tmp/docker-image-cache
             key: docker-cache-${{ github.sha }}
 
-#  acceptance-tests:
-#    name: Acceptance Tests
-#    runs-on: ubuntu-latest
-#    needs: [build]
-#    steps:
-#      - name: Setup Docker Image Cache
-#        uses: actions/cache@v2
-#        with:
-#          path: /tmp/docker-image-cache
-#          key: docker-cache-${{ github.sha }}
-#
-#      - name: Load Image
-#        run:  docker load -i /tmp/docker-image-cache/image.tar
-#
-#      - run: echo "Integration tests"
-#        # TODO run godog against docker image.
+  acceptance-tests:
+    name: Acceptance Tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    env:
+      APP_ENV: test
+      APP_PORT: 8080
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: app
+      DB_DATABASE: app
+      DB_PASSWORD: chu0eiXa
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres:12
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: chu0eiXa
+          POSTGRES_DATABASE: app_test
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Setup gotestsum
+        uses: autero1/action-gotestsum@v0.1.0
+        with:
+            gotestsum_version: 0.4.1
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Setup Docker Image Cache
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker-image-cache
+          key: docker-cache-${{ github.sha }}
+
+      - name: Load Image
+        run:  docker load -i /tmp/docker-image-cache/image.tar
+
+      - name: Run application
+        run: |
+          docker run -d -p 8080:8080 \
+            -e APP_ENV=prod \
+            -e APP_PORT=$(APP_PORT) \
+            -e DB_HOST=$(DB_HOST) \
+            -e DB_PORT=$(DB_PORT) \
+            -e DB_PASSWORD=$(DB_PASSWORD) \
+            -e DB_DATABASE=$(DB_DATABASE) \
+            $TEST_IMAGE_NAME
+
+      - name: Wait for application startup
+        uses: ifaxity/wait-on-action
+        with:
+          resource: http://localhost:8080
+          delay: 1000
+          timeout: 15000
+
+      - name: Run Database migrations
+        run: curl -H localhost:8080
+
+#      - name: Run tests
+#        run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
+#        env:
+#          APP_URL: http://localhost:8080
 
 #  push-to-gcr:
 #    name: Push Docker image to Google Cloud Registry
