@@ -213,11 +213,11 @@ jobs:
         run: |
           docker run -d -p 8080:8080 \
             -e APP_ENV=prod \
-            -e APP_PORT=$(APP_PORT) \
-            -e DB_HOST=$(DB_HOST) \
-            -e DB_PORT=$(DB_PORT) \
-            -e DB_PASSWORD=$(DB_PASSWORD) \
-            -e DB_DATABASE=$(DB_DATABASE) \
+            -e APP_PORT=${APP_PORT} \
+            -e DB_HOST=${DB_HOST} \
+            -e DB_PORT=${DB_PORT} \
+            -e DB_PASSWORD=${DB_PASSWORD} \
+            -e DB_DATABASE=${DB_DATABASE} \
             $TEST_IMAGE_NAME
 
       - name: Wait for application startup
