@@ -1,0 +1,11 @@
+{
+  "name": "docs",
+  "short_name": "docs",
+  "description": "Go API Example documentation",
+  "icons": [],
+  "start_url": "/?standalone=true",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "black",
+  "lang": "en"
+}
