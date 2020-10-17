@@ -69,7 +69,7 @@ jobs:
       - uses: ashley-taylor/junit-report-annotations-action@master
         if: always()
         with:
-          name: Unit Test Results
+          name: Unit Tests
           path: test-report.xml
           access-token: ${{ secrets.GITHUB_TOKEN }}
 
