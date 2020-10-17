@@ -17,6 +17,7 @@ func TestLoad(t *testing.T) {
 	_ = os.Setenv("DB_PORT", "5432")
 	_ = os.Setenv("DB_USER", "postgres")
 	_ = os.Setenv("DB_PASSWORD", "123456")
+	_ = os.Setenv("DB_DATABASE", "app")
 	_ = os.Unsetenv("APP_DEBUG")
 
 	defer func() {
@@ -24,6 +25,7 @@ func TestLoad(t *testing.T) {
 		_ = os.Unsetenv("DB_HOST")
 		_ = os.Unsetenv("DB_PORT")
 		_ = os.Unsetenv("DB_USER")
+		_ = os.Unsetenv("DB_DATABASE")
 		_ = os.Unsetenv("DB_PASSWORD")
 	}()
 
