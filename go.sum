@@ -66,8 +66,8 @@ github.com/bkaradzic/go-lz4 v1.0.0/go.mod h1:0YdlkowM3VswSROI7qDxhRvJ3sLhlFrRRwj
 github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869/go.mod h1:Ekp36dRnpXw/yCqJaO+ZrUyxD+3VXMFFr56k5XYrpB4=
 github.com/brpaz/go-healthcheck v1.0.0 h1:u2z9gEQ8GWpa6paqUUIem0xEEFlEFV8/cQoVNSJY3lE=
 github.com/brpaz/go-healthcheck v1.0.0/go.mod h1:UAeAeVCS8vEO/Q0XaKbrUSVH4zfXx/3YeWdk1PrVcX8=
-github.com/brpaz/godog-api-context v1.3.0 h1:dvrwSOAToe6WZMfiseVy+ExiVWeyIu3y2vdB7txrFg4=
-github.com/brpaz/godog-api-context v1.3.0/go.mod h1:fAM5PvV7667874jFgwnfsgcu9mOE+sBrjrFAbOxFAxg=
+github.com/brpaz/godog-api-context v1.5.1 h1:JcnvG3XK5zXhMIvklpjjX/KD15tBRuTitdd2/eSmdO0=
+github.com/brpaz/godog-api-context v1.5.1/go.mod h1:fAM5PvV7667874jFgwnfsgcu9mOE+sBrjrFAbOxFAxg=
 github.com/casbin/casbin/v2 v2.0.0/go.mod h1:YcPU1XXisHhLzuxH9coDNf2FbKpjGlbCg3n9yuLkIJQ=
 github.com/cenkalti/backoff/v4 v4.0.2/go.mod h1:eEew/i+1Q6OrCDZh3WiXYv3+nJwBASZ8Bog/87DQnVg=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=

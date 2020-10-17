@@ -16,7 +16,7 @@ func GetConnection(cfg config.Config, logger *zap.Logger) (*gorm.DB, error) {
 		cfg.DB.Host,
 		cfg.DB.User,
 		cfg.DB.Password,
-		cfg.DB.Driver,
+		cfg.DB.Database,
 		cfg.DB.Port)
 
 	l := zapgorm2.New(logger)

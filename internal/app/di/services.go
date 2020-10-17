@@ -61,6 +61,13 @@ func getServiceDefinitions(config config.Config) []dic.Definition {
 			},
 		},
 		{
+			Name: ServiceTodoListHandler,
+			Build: func(ctn dic.Container) (interface{}, error) {
+				uc := ctn.Get(ServiceTodoListUseCase).(todo.ListUseCase)
+				return todo.NewListTodoHandler(uc), nil
+			},
+		},
+		{
 			Name: ServiceHealcheckHandler,
 			Build: func(ctn dic.Container) (interface{}, error) {
 				dbConn := ctn.Get(ServiceDB).(*gorm.DB)

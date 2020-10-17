@@ -1,0 +1,47 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema",
+	"$id": "todo",
+	"type": "object",
+	"title": "Todo",
+	"description": "Represents a todo object",
+	"examples": [
+		{
+			"id": 1,
+			"description": "test todo",
+			"created_at": "2020-10-11T10:51:02.641479431Z"
+		}
+	],
+	"required": [
+		"id",
+		"description",
+		"created_at"
+	],
+	"properties": {
+		"id": {
+			"$id": "#/properties/id",
+			"type": "integer",
+			"title": "Todo ID",
+			"description": "The unique id of the todo"
+		},
+		"description": {
+			"$id": "#/properties/description",
+			"type": "string",
+			"title": "Todo description",
+			"description": "The description (content) of the todo",
+			"examples": [
+				"test todo"
+			]
+		},
+		"created_at": {
+			"$id": "#/properties/created_at",
+			"type": "string",
+			"format": "date-time",
+			"title": "Created At",
+			"description": "The date of creation of the todo",
+			"examples": [
+				"2020-10-11T10:51:02.641479431Z"
+			]
+		}
+	},
+	"additionalProperties": false
+}

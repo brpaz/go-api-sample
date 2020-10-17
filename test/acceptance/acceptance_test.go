@@ -4,7 +4,9 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"github.com/brpaz/go-api-sample/internal/app"
+	testContext "github.com/brpaz/go-api-sample/test/acceptance/context"
 	"github.com/brpaz/go-api-sample/test/testutil"
 	"log"
 	"net/http/httptest"
@@ -34,7 +36,7 @@ func createApp() *app.App {
 		log.Println("Failed to load .env files:" + err.Error())
 	}
 
-	logger := zap.NewNop()
+	logger, _ := zap.NewDevelopment()
 
 	cfg, err := config.Load()
 
@@ -43,6 +45,7 @@ func createApp() *app.App {
 	}
 
 	cfg.Env = config.EnvTest // force test env.
+	cfg.DB.Database = fmt.Sprintf("%s_test", cfg.DB.Database)
 
 	return app.New(cfg, logger)
 }
@@ -53,7 +56,7 @@ func TestMain(m *testing.M) {
 
 	opts.Paths = flag.Args()
 
-	_, err := testutil.SetupDB()
+	db, err := testutil.SetupDB()
 
 	if err != nil {
 		log.Fatal(err)
@@ -73,12 +76,13 @@ func TestMain(m *testing.M) {
 		url = ts.URL
 	}
 
-	apiContext := apicontext.New(url)
-
 	status := godog.TestSuite{
-		Name:                "Acceptance Tests",
-		ScenarioInitializer: apiContext.InitializeScenario,
-		Options:             &opts,
+		Name: "Acceptance Tests",
+		ScenarioInitializer: func(s *godog.ScenarioContext) {
+			apicontext.New(url).WithDebug(true).InitializeScenario(s)
+			testContext.NewDBContext(db).InitializeScenario(s)
+		},
+		Options: &opts,
 	}.Run()
 
 	os.Exit(status)

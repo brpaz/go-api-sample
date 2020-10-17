@@ -71,6 +71,9 @@ func (srv *Server) registerRoutes() {
 
 	todosCreateHandler := srv.diContainer.Get(di.ServiceTodoCreateHandler).(*todo.CreateHandler)
 	srv.e.POST("/todos", todosCreateHandler.Handle)
+
+	todosListHandler := srv.diContainer.Get(di.ServiceTodoListHandler).(*todo.ListTodoHandler)
+	srv.e.GET("/todos", todosListHandler.Handle)
 }
 
 // Start start the application server on the configured port
