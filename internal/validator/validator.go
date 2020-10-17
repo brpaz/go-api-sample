@@ -1,19 +1,19 @@
-package http
+package validator
 
 import (
 	"fmt"
 	"github.com/brpaz/go-api-sample/internal/errors"
-	"github.com/go-playground/validator/v10"
+	goValidator "github.com/go-playground/validator/v10"
 	"strings"
 )
 
 type RequestValidator struct {
-	validator *validator.Validate
+	validator *goValidator.Validate
 }
 
-func NewRequestValidator(validator *validator.Validate) *RequestValidator {
+func NewRequestValidator() *RequestValidator {
 	return &RequestValidator{
-		validator: validator,
+		validator: goValidator.New(),
 	}
 }
 
@@ -22,7 +22,7 @@ func (cv *RequestValidator) Validate(i interface{}) error {
 }
 
 // NormalizeFieldName Normalizes a field name from a field error. Ex: lowercase.
-func (cv *RequestValidator) NormalizeFieldName(fieldError validator.FieldError) string {
+func (cv *RequestValidator) NormalizeFieldName(fieldError goValidator.FieldError) string {
 	return strings.ToLower(fieldError.StructField())
 }
 
@@ -43,7 +43,7 @@ func (cv *RequestValidator) MapErrorCodeFromTag(tag string) string {
 // FormatErrorMessage Formats the error message from the Validation error.
 // we could probably use the built in translator (https://github.com/go-playground/validator/blob/master/_examples/translations/main.go)
 // but since we dont need i18n in the app for now, let´s keep it simple.
-func (cv *RequestValidator) FormatErrorMessage(vE validator.FieldError) string {
+func (cv *RequestValidator) FormatErrorMessage(vE goValidator.FieldError) string {
 	message := vE.Error()
 	switch vE.Tag() {
 	case "required":

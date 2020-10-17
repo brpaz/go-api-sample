@@ -1,12 +1,11 @@
 // +build unit
 
-package http_test
+package validator_test
 
 import (
 	appErrors "github.com/brpaz/go-api-sample/internal/errors"
-	"github.com/brpaz/go-api-sample/internal/http"
+	"github.com/brpaz/go-api-sample/internal/validator"
 	ut "github.com/go-playground/universal-translator"
-	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -71,7 +70,7 @@ func TestRequestValidator_Validate(t *testing.T) {
 		Value string `json:"description" validate:"required"`
 	}
 
-	validatorInstance := http.NewRequestValidator(validator.New())
+	validatorInstance := validator.NewRequestValidator()
 	err := validatorInstance.Validate(&mystruct{
 		Value: "test",
 	})
@@ -91,7 +90,7 @@ func TestRequestValidator_MapErrorCodeFromTag(t *testing.T) {
 		{tag: "custom", code: appErrors.ErrCodeValidationFailed},
 	}
 
-	validatorInstance := http.NewRequestValidator(validator.New())
+	validatorInstance := validator.NewRequestValidator()
 	for _, tc := range tests {
 		code := validatorInstance.MapErrorCodeFromTag(tc.tag)
 		assert.Equal(t, code, tc.code)
@@ -104,7 +103,7 @@ func TestRequestValidator_NormalizeFieldName(t *testing.T) {
 		FieldName: "Description",
 	}
 
-	validatorInstance := http.NewRequestValidator(validator.New())
+	validatorInstance := validator.NewRequestValidator()
 	name := validatorInstance.NormalizeFieldName(err)
 
 	assert.Equal(t, "description", name)
@@ -120,7 +119,7 @@ func TestRequestValidator_FormatErrorMessage(t *testing.T) {
 		{input: "required", output: "Description is a required field"},
 	}
 
-	validatorInstance := http.NewRequestValidator(validator.New())
+	validatorInstance := validator.NewRequestValidator()
 	err := &MockValidationError{
 		FieldName: "Description",
 		FieldTag:  "required",

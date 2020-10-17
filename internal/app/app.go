@@ -7,7 +7,7 @@ import (
 	"github.com/brpaz/go-api-sample/internal/config"
 	appHttp "github.com/brpaz/go-api-sample/internal/http"
 	appMiddleware "github.com/brpaz/go-api-sample/internal/http/middleware"
-	"github.com/go-playground/validator/v10"
+	"github.com/brpaz/go-api-sample/internal/validator"
 	"github.com/labstack/echo-contrib/prometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -44,7 +44,7 @@ func New(config config.Config, logger *zap.Logger) *App {
 func (app *App) bootstrap() {
 	app.server.HideBanner = true
 	app.server.HidePort = true
-	app.server.Validator = appHttp.NewRequestValidator(validator.New())
+	app.server.Validator = validator.NewRequestValidator()
 	app.server.HTTPErrorHandler = appHttp.NewErrorHandler(app.logger).Handle
 
 	app.registerMiddlewares()

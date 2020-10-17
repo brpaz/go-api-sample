@@ -7,8 +7,8 @@ import (
 	"errors"
 	appErrors "github.com/brpaz/go-api-sample/internal/errors"
 	appHttp "github.com/brpaz/go-api-sample/internal/http"
+	"github.com/brpaz/go-api-sample/internal/validator"
 	"github.com/brpaz/go-api-sample/test/testutil"
-	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -92,7 +92,7 @@ func TestErrorHandler_Handle_ValidatorErrors(t *testing.T) {
 		Value string `json:"value" validate:"required"`
 	}
 
-	validatorInstance := appHttp.NewRequestValidator(validator.New())
+	validatorInstance := validator.NewRequestValidator()
 	err := validatorInstance.Validate(&mystruct{})
 
 	getMockErrorHandler().Handle(err, ctx)

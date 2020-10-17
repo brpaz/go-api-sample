@@ -13,8 +13,8 @@ APP_CONTAINER_NAME=app
 
 NOW:=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
 VERSION:=$(shell git rev-parse --short HEAD)-dev
-CURRENT_UID := $(shell id -u)
-CURRENT_GID := $(shell id -g)
+export UID := $(shell id -u)
+export GID := $(shell id -g)
 
 targets := $(lastword $(MAKEFILE_LIST))
 

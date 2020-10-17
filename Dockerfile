@@ -4,7 +4,7 @@
 # and custom entrypoints
 # - The builder stage builds the application binary for production
 # - The production stage only contains the application binary.
-FROM golang:1.14-alpine AS build_base
+FROM golang:1.15-alpine AS build_base
 
 ARG BUILD_DATE
 ARG VCS_REF
