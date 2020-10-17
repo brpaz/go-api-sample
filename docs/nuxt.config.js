@@ -6,4 +6,4 @@ const router = {
 	}
 }
 
-export default { ...theme(), ...router};
+export default theme();
