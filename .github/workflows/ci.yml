@@ -146,6 +146,16 @@ jobs:
           image: ${{ env.TEST_IMAGE_NAME }}
           configFile: container-structure-test.yaml
 
+      - name: Scan image
+        uses: anchore/scan-action@v2
+        with:
+          image: ${{ env.TEST_IMAGE_NAME }}
+          fail-build: true
+          severity-cutoff: critical
+
+      - name: grype scan JSON results
+        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+
       - name: Save image
         run:  mkdir -p /tmp/docker-image-cache && docker save -o /tmp/docker-image-cache/image.tar $TEST_IMAGE_NAME
 
@@ -167,7 +177,7 @@ jobs:
       DB_USER: app
       DB_DATABASE: app_test
       DB_PASSWORD: chu0eiXa
-      APP_URL: http://localhost:3000
+      APP_URL: http://127.0.0.1:3000
     services:
       # Label used to access the service container
       postgres:
@@ -219,12 +229,7 @@ jobs:
           docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
 
       - name: Wait for application to start
-        run: curl --connect-timeout 5 \
-          --retry 5 \
-          --retry-delay 0 \
-          --retry-max-time 30 \
-          --retry-connrefused \
-          $APP_URL
+        run: curl --retry-connrefused --connect-timeout 5 --retry 5 --retry-delay 0 --retry-max-time 30 ${APP_URL}
 
       - name: Run Database migrations
         run: docker exec -t app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
