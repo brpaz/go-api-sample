@@ -22,6 +22,7 @@ func GetConnection(cfg config.Config, logger *zap.Logger) (*gorm.DB, error) {
 		cfg.DB.Database,
 		cfg.DB.Port)
 
+	logger.Info(dsn)
 	l := zapgorm2.New(logger)
 
 	if cfg.Env == config.EnvDev {

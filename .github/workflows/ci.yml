@@ -216,7 +216,6 @@ jobs:
 
       - name: Run application
         run: |
-          echo $DB_DATABASE
           docker run --name="app" --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
 
       - name: Wait for application startup
