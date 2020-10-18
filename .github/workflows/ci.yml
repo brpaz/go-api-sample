@@ -216,10 +216,9 @@ jobs:
 
       - name: Run application
         run: |
-          echo $DOCKER_NET
-          docker run --name="app" --network "${DOCKER_NET}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
-        env:
-          DOCKER_NET: ${{ job.services.postgres.network }}
+          echo $DB_DATABASE
+          docker run --name="app" --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
+
       - name: Wait for application startup
         uses: ifaxity/wait-on-action@v1
         with:
