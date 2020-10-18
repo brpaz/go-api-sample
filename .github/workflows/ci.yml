@@ -17,7 +17,7 @@ jobs:
     name: Prepare
     runs-on: ubuntu-latest
     outputs:
-      TEST_IMAGE_NAME: go-api-sample-${{ steps.short-sha.outputs.sha }}
+      TEST_IMAGE_NAME: brpaz/go-api-sample-${{ steps.short-sha.outputs.sha }}
     steps:
       - name: Parse short sha
         uses: benjlevesque/short-sha@v1.1
@@ -267,7 +267,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Tag and push images to Registry
         run: |
-          docker push ${{ secrets.DOCKER_USER }}/$TEST_IMAGE_NAME
+          docker push $TEST_IMAGE_NAME
 
 #  deploy:
 #    name: Deploy
