@@ -154,7 +154,7 @@ jobs:
           severity-cutoff: critical
 
       - name: grype scan JSON results
-        run: for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
+        run: ls && for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
 
       - name: Save image
         run:  mkdir -p /tmp/docker-image-cache && docker save -o /tmp/docker-image-cache/image.tar $TEST_IMAGE_NAME
@@ -229,7 +229,7 @@ jobs:
           docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
 
       - name: Wait for application to start
-        run: curl --retry-connrefused --connect-timeout 5 --retry 5 --retry-delay 0 --retry-max-time 30 ${APP_URL}
+        run: curl -sS --retry-connrefused --connect-timeout 5 --retry 5 --retry-delay 0 --retry-max-time 30 ${APP_URL}
 
       - name: Run Database migrations
         run: docker exec -t app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
@@ -238,6 +238,7 @@ jobs:
         run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
         env:
           SETUP_DB: false
+          DB_HOST: localhost
 
 #  push-to-gcr:
 #    name: Push Docker image to Google Cloud Registry
