@@ -167,6 +167,7 @@ jobs:
       DB_USER: app
       DB_DATABASE: app_test
       DB_PASSWORD: chu0eiXa
+      APP_URL: http://localhost:3000
     services:
       # Label used to access the service container
       postgres:
@@ -216,26 +217,21 @@ jobs:
       - name: Run application
         run: |
           docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
-          sleep 5
-          curl -I 127.0.0.1:3000
-          docker ps -a > /tmp/test.txt
-          cat /tmp/test.txt
 
-      - name: Wait for application startup
-        uses: ifaxity/wait-on-action@v1
-        with:
-          resource: http://127.0.0.1:3000
-          delay: 2000
-          timeout: 30000
-          log: true
+      - name: Wait for application to start
+        run: curl --connect-timeout 5 \
+          --retry 5 \
+          --retry-delay 0 \
+          --retry-max-time 30 \
+          --retry-connrefused \
+          $APP_URL
 
       - name: Run Database migrations
-        run: docker exec -it app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
+        run: docker exec -t app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
 
       - name: Run tests
         run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
         env:
-          APP_URL: http://localhost:3000
           SETUP_DB: false
 
 #  push-to-gcr:
