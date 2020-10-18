@@ -163,7 +163,7 @@ jobs:
     env:
       APP_ENV: test
       APP_PORT: 3000
-      DB_HOST: localhost
+      DB_HOST: postgres
       DB_PORT: 5432
       DB_USER: app
       DB_DATABASE: app_test
@@ -216,8 +216,7 @@ jobs:
 
       - name: Run application
         run: |
-          cat .env.test
-          docker run --name="app" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
+          docker run --name="app" --network "${{ job.services.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
 
       - name: Wait for application startup
         uses: ifaxity/wait-on-action@v1
@@ -228,7 +227,7 @@ jobs:
           log: true
 
       - name: Run Database migrations
-        run: docke exec -it app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
+        run: docker exec -it app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
 
       - name: Run tests
         run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
