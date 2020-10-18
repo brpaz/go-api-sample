@@ -216,13 +216,15 @@ jobs:
       - name: Run application
         run: |
           docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
+          sleep 5
+          docker ps -a
 
       - name: Wait for application startup
         uses: ifaxity/wait-on-action@v1
         with:
-          resource: http://localhost:3000
-          delay: 1000
-          timeout: 15000
+          resource: http://127.0.0.1:3000
+          delay: 2000
+          timeout: 30000
           log: true
 
       - name: Run Database migrations
