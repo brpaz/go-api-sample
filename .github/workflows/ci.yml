@@ -251,10 +251,10 @@ jobs:
       TEST_IMAGE_NAME: ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
     steps:
       - name: Setup Docker Image Cache
-          uses: actions/cache@v2
-          with:
-            path: /tmp/docker-image-cache
-            key: docker-cache-${{ github.sha }}
+        uses: actions/cache@v2
+        with:
+          path: /tmp/docker-image-cache
+          key: docker-cache-${{ github.sha }}
 
       - name: Load image into docker
         run: docker load -i /tmp/docker-image-cache/image.tar
