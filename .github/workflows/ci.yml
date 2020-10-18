@@ -14,9 +14,16 @@ env:
   GO111MODULE: on
 
 jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "action_state=yellow" >> $GITHUB_ENV
+
   lint:
     name: Lint Go Code
     runs-on: ubuntu-latest
+    needs: [prepare]
     steps:
       - name: Set up Go
         uses: actions/setup-go@v1
@@ -34,6 +41,7 @@ jobs:
   lint-dockerfile:
     name: Lint Dockerfile
     runs-on: ubuntu-latest
+    needs: [prepare]
     steps:
       - uses: actions/checkout@v2
       - uses: brpaz/hadolint-action@master
@@ -56,6 +64,8 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
+      - name: print
+        run:  echo $action_state
       - name: Run tests
         run: gotestsum --junitfile test-report.xml -- -v -tags=unit -cover -coverprofile=coverage.txt -covermode=atomic ./...
 
@@ -123,8 +133,8 @@ jobs:
           DB_DATABASE: app
           DB_PASSWORD: chu0eiXa
 
-  build:
-    name: Build Docker Image
+  build-image:
+    name: Build And Test Image
     runs-on: ubuntu-latest
     needs: [test-unit, test-integration]
     steps:
@@ -152,9 +162,6 @@ jobs:
           image: ${{ env.TEST_IMAGE_NAME }}
           fail-build: true
           severity-cutoff: critical
-
-      - name: grype scan JSON results
-        run: ls && for j in `ls ./anchore-reports/*.json`; do echo "---- ${j} ----"; cat ${j}; echo; done
 
       - name: Save image
         run:  mkdir -p /tmp/docker-image-cache && docker save -o /tmp/docker-image-cache/image.tar $TEST_IMAGE_NAME
@@ -235,7 +242,7 @@ jobs:
         run: docker exec -t app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
 
       - name: Run tests
-        run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
+        run: go test -v ./test/acceptance -tags=acceptance -count=1
         env:
           SETUP_DB: false
           DB_HOST: localhost

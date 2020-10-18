@@ -82,6 +82,7 @@ func TestMain(m *testing.M) {
 	opts.Paths = flag.Args()
 
 	dbConn, err := getDBConnection()
+	isDebug, _ := util.GetBoolEnv("APP_DEBUG")
 
 	if err != nil {
 		log.Fatal(err)
@@ -109,7 +110,7 @@ func TestMain(m *testing.M) {
 	status := godog.TestSuite{
 		Name: "Acceptance Tests",
 		ScenarioInitializer: func(s *godog.ScenarioContext) {
-			apicontext.New(url).WithDebug(true).InitializeScenario(s)
+			apicontext.New(url).WithDebug(isDebug).InitializeScenario(s)
 			testContext.NewDBContext(dbConn).InitializeScenario(s)
 		},
 		Options: &opts,
