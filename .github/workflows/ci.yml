@@ -17,14 +17,18 @@ jobs:
   prepare:
     name: Prepare
     runs-on: ubuntu-latest
+    outputs:
+      TEST_IMAGE_NAME: go-api-sample-${{ steps.short-sha.outputs.sha }}
     steps:
-      - run: echo "action_state=yellow" >> $GITHUB_ENV
+      - uses: benjlevesque/short-sha@v1.1
+        id: short-sha
 
   lint:
     name: Lint Go Code
     runs-on: ubuntu-latest
     needs: [prepare]
     steps:
+      - run:  echo ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
@@ -51,6 +55,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [lint, lint-dockerfile]
     steps:
+      - run:  echo ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
@@ -64,8 +69,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: print
-        run:  echo $action_state
       - name: Run tests
         run: gotestsum --junitfile test-report.xml -- -v -tags=unit -cover -coverprofile=coverage.txt -covermode=atomic ./...
 
@@ -171,7 +174,7 @@ jobs:
   acceptance-tests:
     name: Acceptance Tests
     runs-on: ubuntu-latest
-    needs: [build-image]
+    needs: [build-docker]
     env:
       APP_ENV: test
       APP_PORT: 3000
