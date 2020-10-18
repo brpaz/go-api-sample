@@ -49,7 +49,7 @@ test-integration: ## Runs acceptance tests
 	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go
 
 test-acceptance: ## Runs acceptance tests
-	$(COMPOSE_RUN) go test -v ./test/acceptance -tags=acceptance -count=1  -godog.format=pretty -godog.tags="$(TAGS)"
+	docker-compose run --rm --entrypoint "" -e SETUP_DB=true $(APP_CONTAINER_NAME) go test -v ./test/acceptance -tags=acceptance -count=1  -godog.format=pretty -godog.tags="$(TAGS)"
 
 test-smoke: ## Runs smoke tests
 	docker-compose exec -e APP_ENV="test" -e APP_URL=http://localhost:5000 $(APP_CONTAINER_NAME) go test -v ./test/smoke -godog.random -godog.format=pretty -tags=smoketests -count=1

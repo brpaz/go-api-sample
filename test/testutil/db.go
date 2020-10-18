@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"log"
 	"os"
+	"strings"
 	"sync"
 )
 
@@ -107,6 +108,12 @@ func CreateDB(db *gorm.DB, dbName string) error {
 
 // GetTestDBName returns the name of the test DB.
 func GetTestDBName() string {
+	dbName := os.Getenv("DB_DATABASE")
+
+	if strings.HasSuffix(dbName,"_test") {
+		return dbName
+	}
+
 	return fmt.Sprintf("%s_test", os.Getenv("DB_DATABASE"))
 }
 

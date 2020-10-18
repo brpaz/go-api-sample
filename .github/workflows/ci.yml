@@ -162,11 +162,11 @@ jobs:
     needs: [build]
     env:
       APP_ENV: test
-      APP_PORT: 8080
+      APP_PORT: 3000
       DB_HOST: localhost
       DB_PORT: 5432
       DB_USER: app
-      DB_DATABASE: app
+      DB_DATABASE: app_test
       DB_PASSWORD: chu0eiXa
     services:
       # Label used to access the service container
@@ -175,9 +175,9 @@ jobs:
         image: postgres:12
         # Provide the password for postgres
         env:
-          POSTGRES_USER: app
-          POSTGRES_PASSWORD: chu0eiXa
-          POSTGRES_DATABASE: app_test
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD:  ${{ env.DB_PASSWORD }}
+          POSTGRES_DATABASE:  ${{ env.DB_DATABASE }}
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -209,33 +209,32 @@ jobs:
       - name: Load Image
         run:  docker load -i /tmp/docker-image-cache/image.tar
 
+      - uses: CallePuzzle/envvar-to-dotenv-action@0.1.0
+        with:
+          variableNames: APP_ENV,APP_PORT,DB_HOST,DB_PORT,DB_USER,DB_PASSWORD,DB_DATABASE
+          envPath: .env.test
+
       - name: Run application
         run: |
-          docker run -d -p 8080:8080 \
-            -e APP_ENV=prod \
-            -e APP_PORT=${APP_PORT} \
-            -e DB_HOST=${DB_HOST} \
-            -e DB_PORT=${DB_PORT} \
-            -e DB_USER=${DB_USER} \
-            -e DB_PASSWORD=${DB_PASSWORD} \
-            -e DB_DATABASE=${DB_DATABASE} \
-            $TEST_IMAGE_NAME
+          cat .env.test
+          docker run --name="app" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
 
       - name: Wait for application startup
         uses: ifaxity/wait-on-action@v1
         with:
-          resource: http://localhost:8080
+          resource: http://localhost:3000
           delay: 1000
           timeout: 15000
           log: true
 
       - name: Run Database migrations
-        run: curl -H localhost:8080
+        run: docke exec -it app migrate -path=migrations -database postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_DATABASE}?sslmode=disable up
 
-#      - name: Run tests
-#        run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
-#        env:
-#          APP_URL: http://localhost:8080
+      - name: Run tests
+        run: go test -v ./test/acceptance -tags=acceptance -count=1 -godog.format=pretty
+        env:
+          APP_URL: http://localhost:3000
+          SETUP_DB: false
 
 #  push-to-gcr:
 #    name: Push Docker image to Google Cloud Registry

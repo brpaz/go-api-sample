@@ -26,7 +26,7 @@ and more ...
 
 ## Getting started
 
-To understand how this application is structured and how you can run it on your local machine, please see the [documentation](https://github.io/brpaz/go-api-sample).
+To understand how this application is structured and how you can run it on your local machine, please see the [documentation](https://brpaz.github.io/go-api-sample/).
 
 
 ## Author

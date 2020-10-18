@@ -6,8 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/brpaz/go-api-sample/internal/app"
+	"github.com/brpaz/go-api-sample/internal/util"
 	testContext "github.com/brpaz/go-api-sample/test/acceptance/context"
 	"github.com/brpaz/go-api-sample/test/testutil"
+	"gorm.io/gorm"
 	"log"
 	"net/http/httptest"
 	"os"
@@ -50,13 +52,36 @@ func createApp() *app.App {
 	return app.New(cfg, logger)
 }
 
+func getDBConnection() (*gorm.DB, error) {
+	isSetupDB, err := util.GetBoolEnv("SETUP_DB")
+
+	if err != nil {
+		return nil, err
+	}
+
+	var dbConn *gorm.DB
+
+	if isSetupDB  {
+		var err error
+		dbConn, err = testutil.SetupDB()
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		dbConn = testutil.GetTestDBConnection()
+	}
+
+	return dbConn, nil
+}
+
 func TestMain(m *testing.M) {
 
 	flag.Parse()
 
 	opts.Paths = flag.Args()
 
-	db, err := testutil.SetupDB()
+	dbConn, err := getDBConnection()
 
 	if err != nil {
 		log.Fatal(err)
@@ -66,6 +91,9 @@ func TestMain(m *testing.M) {
 	// If the URL is passed as an argument, we call that url directly.
 	url := os.Getenv("APP_URL")
 	if url == "" {
+
+		log.Println("Creating Application")
+
 		appInstance := createApp()
 
 		ts := httptest.NewServer(appInstance)
@@ -74,13 +102,15 @@ func TestMain(m *testing.M) {
 		log.Printf("Test application running on: %s \n", ts.URL)
 
 		url = ts.URL
+	} else {
+		log.Printf("Running tests on existing url: %s", url)
 	}
 
 	status := godog.TestSuite{
 		Name: "Acceptance Tests",
 		ScenarioInitializer: func(s *godog.ScenarioContext) {
 			apicontext.New(url).WithDebug(true).InitializeScenario(s)
-			testContext.NewDBContext(db).InitializeScenario(s)
+			testContext.NewDBContext(dbConn).InitializeScenario(s)
 		},
 		Options: &opts,
 	}.Run()
