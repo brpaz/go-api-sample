@@ -80,10 +80,14 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-X 'github.com/brpa
 FROM alpine:3.11 AS production
 
 ENV APP_ENV=prod
+RUN mkdir -p /src/app
+
+WORKDIR /src/app
 
 # Finally we copy the statically compiled Go binary.
 COPY --from=builder /bin/server /bin/app
 COPY --from=builder /usr/local/bin/migrate /usr/local/bin/migrate
+COPY --from=builder /src/app/migrations migrations/
 
 ENTRYPOINT ["/bin/app"]
 

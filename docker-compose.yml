@@ -3,7 +3,7 @@ services:
   app:
     build:
       context: .
-      target: dev
+      target: production
     env_file: .env
     volumes:
       - .:/src/app
@@ -11,13 +11,13 @@ services:
       - "${APP_PORT:-5000}"
 
   db:
-    image: library/postgres:12
+    image: postgres:12
     ports:
       - "5432:5432"
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-      POSTGRES_DATABASE: ${DB_DATABASE}
+      POSTGRES_DB: ${DB_DATABASE}
     volumes:
       - db-data:/var/lib/postgresql/data
 
