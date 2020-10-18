@@ -1,7 +1,6 @@
 package db
 
 import (
-	"encoding/base64"
 	"fmt"
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/brpaz/go-api-sample/internal/config"
@@ -20,10 +19,9 @@ func GetConnection(cfg config.Config, logger *zap.Logger) (*gorm.DB, error) {
 		cfg.DB.Host,
 		cfg.DB.User,
 		cfg.DB.Password,
-		cfg.DB.Database,
+		"app_test",
 		cfg.DB.Port)
 
-	logger.Sugar().Infof("CONFIG: %v",  base64.StdEncoding.EncodeToString([]byte(cfg.DB.Database)))
 	l := zapgorm2.New(logger)
 
 	if cfg.Env == config.EnvDev {
