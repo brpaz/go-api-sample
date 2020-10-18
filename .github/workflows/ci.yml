@@ -92,7 +92,6 @@ jobs:
         env:
           POSTGRES_USER: app
           POSTGRES_PASSWORD: chu0eiXa
-          POSTGRES_DATABASE: app_test
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
@@ -177,7 +176,7 @@ jobs:
         env:
           POSTGRES_USER: ${{ env.DB_USER }}
           POSTGRES_PASSWORD:  ${{ env.DB_PASSWORD }}
-          POSTGRES_DATABASE:  ${{ env.DB_DATABASE }}
+          POSTGRES_DB:  ${{ env.DB_DATABASE }}
         # Set health checks to wait until postgres has started
         options: >-
           --health-cmd pg_isready
