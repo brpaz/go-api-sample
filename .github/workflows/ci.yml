@@ -9,7 +9,6 @@ on:
     paths-ignore:
       - 'docs/**'
 env:
-  TEST_IMAGE_NAME: go-api-sample:${{ github.sha }}
   GO_VERSION: 1.15
   GO111MODULE: on
 
@@ -53,9 +52,8 @@ jobs:
   test-unit:
     name: Unit Tests
     runs-on: ubuntu-latest
-    needs: [lint, lint-dockerfile]
+    needs: [prepare, lint, lint-dockerfile]
     steps:
-      - run:  echo ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
       - name: Set up Go
         uses: actions/setup-go@v1
         with:
@@ -95,7 +93,7 @@ jobs:
   test-integration:
     name: Integration Tests
     runs-on: ubuntu-latest
-    needs: [test-unit]
+    needs: [prepare,test-unit]
     services:
       postgres:
         image: postgres:12
@@ -135,7 +133,9 @@ jobs:
   build-image:
     name: Build And Test Image
     runs-on: ubuntu-latest
-    needs: [test-unit, test-integration]
+    needs: [prepare, test-unit, test-integration]
+    env:
+      TEST_IMAGE_NAME: ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
     steps:
       - name: Check out code
         uses: actions/checkout@v2
@@ -174,8 +174,9 @@ jobs:
   acceptance-tests:
     name: Acceptance Tests
     runs-on: ubuntu-latest
-    needs: [build-image]
+    needs: [prepare, build-image]
     env:
+      TEST_IMAGE_NAME: ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
       APP_ENV: test
       APP_PORT: 3000
       DB_HOST: postgres
@@ -242,33 +243,25 @@ jobs:
           SETUP_DB: false
           DB_HOST: localhost
 
-#  push-to-gcr:
-#    name: Push Docker image to Google Cloud Registry
-#    runs-on: ubuntu-latest
-#    needs: ['acceptance-tests']
-#    steps:
-#
-#      - name: Setup Docker Image Cache
-#          uses: actions/cache@v2
-#          with:
-#            path: /tmp/docker-image-cache
-#            key: docker-cache-${{ github.sha }}
-#
-#      - name: Load image into docker
-#        run: docker load -i image/image.tar
-#
-#      - name: Login in GCR
-#        run:  docker login -u _json_key -p "$GCLOUD_SERVICE_KEY" https://gcr.io
-#        env:
-#          GCLOUD_SERVICE_KEY: ${{secrets.GCLOUD_SERVICE_KEY}}
-#
-#      - name: Tag and push images to Registry
-#        run: |
-#          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:$GITHUB_SHA
-#          docker tag $TEST_IMAGE_NAME $RELEASE_IMAGE_NAME:latest
-#          docker push $RELEASE_IMAGE_NAME:$GITHUB_SHA
-#          docker push $RELEASE_IMAGE_NAME:latest
+  push-image:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-latest
+    needs: [prepare, acceptance-tests]
+    env:
+      TEST_IMAGE_NAME: ${{ needs.prepare.outputs.TEST_IMAGE_NAME }}
+    steps:
+      - name: Setup Docker Image Cache
+          uses: actions/cache@v2
+          with:
+            path: /tmp/docker-image-cache
+            key: docker-cache-${{ github.sha }}
 
+      - name: Load image into docker
+        run: docker load -i /tmp/docker-image-cache/image.tar
+
+      - name: Tag and push images to Registry
+        run: |
+          docker push $TEST_IMAGE_NAME
 
 #  deploy:
 #    name: Deploy
