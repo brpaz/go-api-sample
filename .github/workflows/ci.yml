@@ -217,7 +217,9 @@ jobs:
         run: |
           docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
           sleep 5
-          docker ps -a
+          curl -I 127.0.0.1:3000
+          docker ps -a > /tmp/test.txt
+          cat /tmp/test.txt
 
       - name: Wait for application startup
         uses: ifaxity/wait-on-action@v1
