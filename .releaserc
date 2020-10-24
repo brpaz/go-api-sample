@@ -8,7 +8,7 @@
     [
         "@eclass/semantic-release-docker",
         {
-          "baseImageName": "go-api-sample",
+          "baseImageName": "brpaz/go-api-sample",
           "registries": [
             {
               "url": "docker.io",
