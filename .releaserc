@@ -12,7 +12,7 @@
           "registries": [
             {
               "url": "docker.io",
-              "imageName": "docker.io/myuser/myapp",
+              "imageName": "docker.io/brpaz/go-api-sample",
               "user": "DOCKER_REGISTRY_USER",
               "password": "DOCKER_REGISTRY_PASSWORD"
             },
