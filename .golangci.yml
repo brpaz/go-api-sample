@@ -1,0 +1,13 @@
+# Golang CI lint configuration file.
+# For example of available options, please see: https://golangci-lint.run/usage/configuration/
+linters:
+  enable: gosec
+
+issues:
+  exclude:
+    - "Error return value of `c.JSON` is not checked"
+
+  exclude-rules:
+      - linters:
+          - gosimple
+        text: "S1016:"

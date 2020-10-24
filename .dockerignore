@@ -1,6 +1,11 @@
 Dockerfile
-docker-compose.yml
+docker-compose*.yml
 build
 testdata
 .github
 .pre-commit-config.yaml
+.idea
+.env
+.env.example
+Makefile
+.editorconfig

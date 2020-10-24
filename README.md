@@ -1,42 +1,33 @@
 # go-api-sample
 
-> Demo project showing a full CI /CD Pipeline for a Golang Application using GitHub Actions and Google Cloud
+> Comprehensive example of how to build a complete Golang API, including Clean architecture concepts, Dependency Injection, tests, CI Pipeline, documentation and more.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](LICENSE)
-
 [![GitHub Actions](https://github.com/brpaz/go-api-sample/workflows/CI/badge.svg?style=for-the-badge)](https://github.com/brpaz/go-api-sample/actions)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/8c79d720eb364a2cb0ef2f3d98a1874d)](https://www.codacy.com/manual/brpaz/go-api-sample?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=brpaz/go-api-sample&amp;utm_campaign=Badge_Grade)
-
-## What is Included
-
-* API based on [Echo framework](https://echo.labstack.com/)
-* Logging with [Zap](https://github.com/uber-go/zap)
-* Hot Reload with [Refresh](https://github.com/markbates/refresh)
-* DotEnv support
-* Docker and Docker-compose
-* Full CI/CD pipeline using GitHub Actions
-* Deploy with [Google Cloud run](https://cloud.google.com/run/)
-* Functional Tests with [godog](https://github.com/DATA-DOG/godog)
-* Code quality metrics with [Codacy](https://codacy.com)
-
-## Pre-requisites
-
-- Go 1.13 or higher with [go modules support](https://github.com/golang/go/wiki/Modules) enabled.
-
-## Usage
-
-The recommended way is to use [Docker](https://www.docker.com/).
-
-You can start the application with ```docker-compose up```command. A Makefile is provided in the root of the repository with useful tasks like running tests.
-
-## Todo
-
-* Add semantic release support.
 
 
-## 🤝 Contributing
+## What is included
 
-Contributions, issues and feature requests are welcome!
+This project includes a simple API with endpoints to create and list todos. The idea is not to have a complex fully functional app but a boilerplate demonstrating architecture and practices.
+
+It uses the following tools and libraries:
+
+* [Echo](https://echo.labstack.com/) as the backbones of the application and HTTP Server.
+* [Zap logger](https://github.com/uber-go/zap) for logging.
+* [Gorm](https://gorm.io/index.html) for database access.
+* [golang-migrate](https://github.com/golang-migrate/migrate) - Database migration tool.
+* [sarulabs/di](https://github.com/sarulabs/di) as dependency injection framework.
+* [godog](https://github.com/cucumber/godog) for writting acceptance tests using BDD.
+* [GitHub Actions](https://github.com/features/actions) for the CI / CD Pipeline.
+* [Docker](https://www.docker.com/) and [Docker-Compose](https://docs.docker.com/compose/) for easy development environment.
+* [Nuxt Content](https://content.nuxtjs.org/) for this documentation site.
+
+and more ...
+
+## Getting started
+
+To understand how this application is structured and how you can run it on your local machine, please see the [documentation](https://brpaz.github.io/go-api-sample/).
+
 
 ## Author
 
@@ -47,6 +38,6 @@ Contributions, issues and feature requests are welcome!
 
 ## 📝 License
 
-Copyright © 2019 [Bruno Paz](https://github.com/brpaz).
+Copyright © 2020 [Bruno Paz](https://github.com/brpaz).
 
 This project is [MIT](LICENSE) licensed.

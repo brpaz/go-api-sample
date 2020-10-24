@@ -1,0 +1,10 @@
+schemaVersion: 2.0.0
+fileExistenceTests:
+  - name: 'Application Executable'
+    path: '/bin/app'
+    shouldExist: true
+metadataTest:
+  env:
+    - key: APP_ENV
+      value: prod
+  entrypoint: ["/bin/app"]

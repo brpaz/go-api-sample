@@ -1,65 +1,66 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"github.com/brpaz/go-api-sample/internal/app"
+	"github.com/brpaz/go-api-sample/internal/logging"
+	"github.com/labstack/gommon/log"
 	"os"
+	"os/signal"
+	"time"
 
 	"github.com/brpaz/go-api-sample/internal/config"
-	"github.com/brpaz/go-api-sample/internal/handlers"
-	appMiddleware "github.com/brpaz/go-api-sample/internal/middleware"
 	"github.com/joho/godotenv"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
-	"go.uber.org/zap"
 )
 
-// Logger The application logger
-var Logger *zap.Logger
+// Loads environment variables from ".env file" in dev mode.
+func dotenv() {
+	if os.Getenv("APP_ENV") == "dev" {
+		if err := godotenv.Load(); err != nil {
+			log.Infof("Failed to load dotenv file", err)
+		}
+	}
+}
 
+// Main entry point of the application
 func main() {
 
-	// Loads environment variables from ".env file" in dev mode.
-	if os.Getenv("APP_ENV") == "dev" {
-		godotenv.Load()
-	}
+	dotenv()
 
 	// Load config into the application
-	if err := config.Load(); err != nil {
-		panic(err)
+	cfg, err := config.Load()
+
+	if err != nil {
+		log.Fatalf("Failed to load application configuration", err)
 	}
 
-	// Setups the application logger
-	setupLogger()
+	// Setup the application logger
+	logger, err := logging.BuildLogger(cfg)
 
-	// Configures and starts the application
-	startServer()
-}
-
-func setupLogger() {
-
-	if config.Get().Env == "dev" {
-		Logger, _ = zap.NewDevelopment()
-	} else {
-		Logger, _ = zap.NewProduction()
+	if err != nil {
+		log.Fatalf("Failed to configure application logger", err)
 	}
 
-	defer Logger.Sync()
-}
+	defer func() {
+		_ = logger.Sync()
+	}()
 
-func startServer() {
-	e := echo.New()
-	e.HideBanner = true
-	e.Debug = config.Get().Debug
+	appInstance := app.New(cfg, logger)
 
-	e.Use(appMiddleware.ZapLogger(Logger))
-	e.Use(middleware.RequestID())
-	e.Use(middleware.Recover())
-	e.Use(middleware.Gzip())
+	go func() {
+		if err := appInstance.Start(); err != nil {
+			logger.Fatal("Failed to start application server:" + err.Error())
+		}
+	}()
 
-	// Routes
-	e.GET("/hello", handlers.Hello)
-	e.GET("/_health", handlers.Health)
-
-	port := fmt.Sprintf(":%d", config.Get().Port)
-	e.Logger.Fatal(e.Start(port))
+	// Wait for interrupt signal to gracefully shutdown the server with
+	// a timeout of 10 seconds.
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := appInstance.Shutdown(ctx); err != nil {
+		logger.Sugar().Fatal(err)
+	}
 }

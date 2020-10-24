@@ -23,3 +23,8 @@ dist
 # IDE files
 .idea
 .vscode
+
+# Docker related files
+docker-compose.override.yml
+docs/node_modules
+docs/.nuxt

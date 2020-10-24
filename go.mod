@@ -1,18 +1,26 @@
 module github.com/brpaz/go-api-sample
 
-go 1.12
+go 1.14
 
 require (
-	github.com/DATA-DOG/godog v0.7.13
+	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/brpaz/go-healthcheck v1.0.0
+	github.com/brpaz/godog-api-context v1.5.1
+	github.com/cucumber/godog v0.10.0
+	github.com/cucumber/messages-go/v10 v10.0.3
+	github.com/go-playground/universal-translator v0.17.0
+	github.com/go-playground/validator/v10 v10.4.0
+	github.com/golang-migrate/migrate/v4 v4.13.0
 	github.com/joho/godotenv v1.3.0
-	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/labstack/echo-contrib v0.9.0
 	github.com/labstack/echo/v4 v4.1.10
-	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
-	github.com/stretchr/testify v1.4.0
-	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
-	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
-	github.com/xeipuuv/gojsonschema v1.1.0
-	go.uber.org/atomic v1.4.0 // indirect
-	go.uber.org/multierr v1.2.0 // indirect
-	go.uber.org/zap v1.10.0
+	github.com/labstack/gommon v0.3.0
+	github.com/sarulabs/di v1.4.0
+	github.com/sethvargo/go-envconfig v0.3.1
+	github.com/stretchr/testify v1.6.1
+	go.uber.org/zap v1.15.0
+	gorm.io/driver/postgres v1.0.2
+	gorm.io/gorm v1.20.2
+	moul.io/zapgorm2 v1.0.1
+	syreclabs.com/go/faker v1.2.2
 )
