@@ -23,6 +23,9 @@ jobs:
       - name: Pull image
         run: docker pull ${{ env.RELEASE_IMAGE }}:${{ env.SHORT_SHA }}
 
+      - name: Tag latest Image
+        run: docker tag ${{ env.RELEASE_IMAGE }}:${{ env.SHORT_SHA }} ${{ env.RELEASE_IMAGE }}:latest
+
       - name: Check out code
         uses: actions/checkout@v2
 
@@ -36,3 +39,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DOCKER_REGISTRY_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Update Docker Hub Description
+        uses: peter-evans/dockerhub-description@v2
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKER_USER }}
+          DOCKERHUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKERHUB_REPOSITORY: ${{ env.RELEASE_IMAGE }}
