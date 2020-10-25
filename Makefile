@@ -10,11 +10,9 @@
 PROJECT_NAME:="go-api"
 DOCKER_CONTAINER_TESTS_IMAGE:=$(PROJECT_NAME):container-tests
 APP_CONTAINER_NAME=app
-
+APP_URL ?=http://localhost:5000
 NOW:=`date -u +"%Y-%m-%dT%H:%M:%SZ"`
 VERSION:=$(shell git rev-parse --short HEAD)-dev
-export UID := $(shell id -u)
-export GID := $(shell id -g)
 
 targets := $(lastword $(MAKEFILE_LIST))
 
@@ -46,13 +44,13 @@ coverreport: ## Shows code coverage report
 	go tool cover -html=./test/cover/cover.out
 
 test-integration: ## Runs acceptance tests
-	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go
+	docker-compose run --entrypoint "" -e APP_ENV=test $(APP_CONTAINER_NAME) go run test/integration/db/main.go -format=testname -v
 
 test-acceptance: ## Runs acceptance tests
 	docker-compose run --rm --entrypoint "" -e SETUP_DB=true $(APP_CONTAINER_NAME) go test -v ./test/acceptance -tags=acceptance -count=1  -godog.format=pretty -godog.tags="$(TAGS)"
 
 test-smoke: ## Runs smoke tests
-	docker-compose exec -e APP_ENV="test" -e APP_URL=http://localhost:5000 $(APP_CONTAINER_NAME) go test -v ./test/smoke -godog.random -godog.format=pretty -tags=smoketests -count=1
+	docker-compose exec -e APP_ENV="test" -e APP_URL=$(APP_URL) $(APP_CONTAINER_NAME) go test -v ./test/smoke -godog.random -godog.format=pretty -tags=smoketests -count=1
 
 container-test: ## Runs container structure tests on Docker image
 	docker build  \

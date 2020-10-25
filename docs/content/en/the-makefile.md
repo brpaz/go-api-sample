@@ -1,13 +1,13 @@
 ---
 title: 'The Makefile'
-position: 3
-category: 'Application Structure'
+position: 4
+category: 'Getting started'
 fullscreen: false
 ---
 
-The application comes with a Makefile that provides tasks for common needs like starting the application, inspecting the logs, running migrations etc.
+The application comes with a `Makefile` that provides tasks for common needs like starting the application, inspecting the logs, running migrations etc.
 
-You can inspect the Makefile or run `make help` to see the available tasks. some include:
+You can see the available tasks by running `make help` on the terminal. some include:
 
 * **fmt** - Runs `go fmt` to format your code.
 * **lint** - Runs `golangci-lint` to lint your code.
@@ -20,4 +20,3 @@ You can inspect the Makefile or run `make help` to see the available tasks. some
 * **sh** - Opens a shell to the application container.
 * **logs**  - Show container logs.
 
-And more ...

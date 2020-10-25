@@ -122,7 +122,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run tests
-        run: go run test/integration/db/main.go
+        run: go run test/integration/db/main.go --format=testname
         env:
           APP_ENV: test
           DB_HOST: localhost
@@ -226,11 +226,11 @@ jobs:
       - uses: CallePuzzle/envvar-to-dotenv-action@0.1.0
         with:
           variableNames: APP_ENV,APP_PORT,DB_HOST,DB_PORT,DB_USER,DB_PASSWORD,DB_DATABASE
-          envPath: .env.test
+          envPath: .env.ci
 
       - name: Run application
         run: |
-          docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.test $TEST_IMAGE_NAME
+          docker run --name="app" -d --network "${{ job.services.postgres.network }}" -p 3000:3000 --env-file=.env.ci $TEST_IMAGE_NAME
 
       - name: Wait for application to start
         run: curl -sS --retry-connrefused --connect-timeout 5 --retry 5 --retry-delay 0 --retry-max-time 30 ${APP_URL}

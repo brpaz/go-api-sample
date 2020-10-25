@@ -103,6 +103,30 @@ paths:
           description: Success response
       operationId: list-todos
       description: Returns a list of todos
+    post:
+      summary: Create Todo
+      description: ''
+      operationId: create-todo
+      responses:
+        default:
+          description: Default error sample response
+      requestBody:
+        content:
+          application/json:
+            schema:
+              description: The todo contents
+              type: object
+              properties:
+                description:
+                  type: string
+                  description: The todo description
+              required:
+                - description
+            examples:
+              Request:
+                value:
+                  description: Some description
+        description: ''
 components:
   schemas:
     Todo:
