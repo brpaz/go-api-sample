@@ -13,7 +13,7 @@ Before starting, make sure you have the following tools installed on your machin
 * Docker
 * Docker-Compose
 * Make
-* Python (For pre-commit)
+* Python (For pre-commit hooks)
 
 This project ships a Docker-compose file and a Makefile with common tasks, to facilitate the development process.
 
@@ -32,9 +32,9 @@ After that, run:
 make setup
 ```
 
-This will run some setup tasks like installing [Pre-commit hooks](https://pre-commit.com)
+This will run some setup tasks like installing [Pre-commit hooks](https://pre-commit.com).
 
-## Launching the application
+## Running the application
 
 To start the application, just run:
 
